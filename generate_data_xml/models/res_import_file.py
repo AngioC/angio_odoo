@@ -22,7 +22,7 @@ class ResImportFile(models.Model):
     name = fields.Char(string="Name")
     load_file = fields.Binary('Load file', required=True)
     file_extension = fields.Char(string="File extension")
-    column_list = fields.Char(string="column list")
+    column_list = fields.Char(string="Column list")
     model_name = fields.Char(string="Model name")
 
     @api.onchange('load_file')
