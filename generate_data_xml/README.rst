@@ -22,7 +22,7 @@ Usage
 Bug Tracker
 ===========
 
-* https://github.com/AngioC/generate_data_xml
+* https://github.com/AngioC/angio_odoo/generate_data_xml
 
 Credits
 =======
