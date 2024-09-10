@@ -9,7 +9,7 @@
     "development_status": "Alpha",
     "category": "Utility",
     "website": "",
-    "author": "AngioC (<cotardoangelo@gmail.com>)",
+    "author": "AngioC",
     "license": "AGPL-3",
     "application": False,
     "installable": True,
