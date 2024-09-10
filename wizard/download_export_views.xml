@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2024 AngioC (<cotardoangelo@gmail.com>)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="wizard_export_download_form_view">
+            <field name="name">wizard.export.download.form</field>
+            <field name="model">download.export</field>
+            <field name="arch" type="xml">
+                <form string="Export Report">
+                    <group>
+                        <field name="export_file" readonly="True" filename="file_name"/>
+                        <field name="file_name" invisible="True"/>
+                    </group>
+                    <footer>
+                        <button string="Annulla" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

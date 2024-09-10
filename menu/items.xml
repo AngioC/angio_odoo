@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2024 AngioC (<cotardoangelo@gmail.com>)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+
+    <menuitem id="menu_res_import_file_root"
+              name="XML data generator"
+              web_icon="generate_data_xml,static/description/icon.png"
+    />
+
+    <menuitem name="XML data"
+              id="menu_res_import_file"
+              parent="menu_res_import_file_root"
+              action="res_import_file_action_form"
+              sequence="10"/>
+
+</odoo>

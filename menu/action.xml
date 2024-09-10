@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2024 AngioC (<cotardoangelo@gmail.com>)
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+
+    <record id="res_import_file_action_form" model="ir.actions.act_window">
+        <field name="name">XML data import</field>
+        <field name="res_model">res.import.file</field>
+        <field name="view_mode">tree,form</field>
+<!--        <field name="view_id" ref="user_templates_tree_view"/>-->
+    </record>
+
+
+</odoo>
