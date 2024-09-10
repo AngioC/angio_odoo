@@ -30,4 +30,4 @@ Credits
 Contributors
 ------------
 
-* AngioC (<cotardoangelo@gmail.com>)
+* AngioC
