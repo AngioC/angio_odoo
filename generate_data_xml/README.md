@@ -28,11 +28,11 @@ Credits
 Contributors
 ------------
 
-* AngioC (<cotardoangelo@gmail.com>)
+* AngioC
 
 
 Maintainer
 ----------
 
-* AngioC (<cotardoangelo@gmail.com>)
+* AngioC
 

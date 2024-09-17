@@ -14,6 +14,8 @@ Description
 
 generate_data_xml is a simple odoo tool that generate XML data file starting from a CSV or a XLSX file.
 
+
+
 Usage
 =====
 
@@ -22,7 +24,7 @@ Usage
 Bug Tracker
 ===========
 
-* https://github.com/AngioC/angio_odoo/generate_data_xml
+* https://github.com/AngioC/angio_odoo/tree/14.0/generate_data_xml
 
 Credits
 =======
