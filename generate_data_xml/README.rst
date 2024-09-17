@@ -12,23 +12,8 @@ Generate XML data file
 Description
 -----------
 
-generate_data_xml is a simple odoo tool that generate XML data file starting from a CSV or a XLSX file.
-
-* Create new record to import
-    .. image:: generate_data_xml/static/description/1.png
-
-* This is an example file
-    .. image:: generate_data_xml/static/description/2.png
-
-* Upload the file and write the correct model name to generate xml data file
-    .. image:: generate_data_xml/static/description/3.png
-
-* Click the button "Generate XML data"
-    .. image:: generate_data_xml/static/description/4.png
-
-* This is the generated file
-    .. image:: generate_data_xml/static/description/5.png
-
+- "generate_data_xml" is a simple odoo tool that generate XML data file starting from a CSV or a XLSX file.
+- Follow the guide on github repository.
 
 Usage
 =====
