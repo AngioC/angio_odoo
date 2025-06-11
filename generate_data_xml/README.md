@@ -4,8 +4,8 @@
 
 Odoo 14.0
 
-General informations
-====================
+General information
+===================
 
 ### Odoo modules dependencies
 
