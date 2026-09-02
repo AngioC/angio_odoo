@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2025 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+    <record id="view_task_form2_inherit_gantt" model="ir.ui.view">
+        <field name="name">project.task.form.gantt.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_deadline']" position="before">
+                <field name="date_start"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Impostazioni Gantt">
+                    <group>
+                        <field name="progress"/>
+                        <field name="dependency_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

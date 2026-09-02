@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2025 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+    <!-- Aggiunge il menu sotto l'app Progetti -->
+    <menuitem id="menu_project_gantt_custom"
+              name="Gantt"
+              parent="project.menu_main_pm"
+              action="action_project_gantt_custom"
+              sequence="15"/>
+
+</odoo>

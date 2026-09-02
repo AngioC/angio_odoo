@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2025 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<templates>
+    <t t-name="CustomGantt.MainView">
+        <div class="o_custom_gantt_wrapper" style="height: 100%; display: flex; flex-direction: column; background: white; overflow: hidden;">
+
+            <!-- STILI PER WEEKEND, BADGES E RITARDI -->
+            <style>
+                .gantt_task_cell.weekend {
+                    background-color: #f4f5f7 !important;
+                }
+                .badge-stage-new { background-color: #17a2b8; color: white; }
+                .badge-stage-progress { background-color: #ffc107; color: #212529; }
+                .badge-stage-done { background-color: #28a745; color: white; }
+                .badge-stage-default { background-color: #6c757d; color: white; }
+
+                .gantt_task_line.gantt_task_overdue {
+                    background: repeating-linear-gradient(
+                        45deg,
+                        #dc3545,
+                        #dc3545 10px,
+                        #bd2130 10px,
+                        #bd2130 20px
+                    ) !important;
+                    border: 1px solid #b21f2d !important;
+                }
+            </style>
+
+            <!-- TOOLBAR UNIFICATA: Azioni rapide e Filtri a sinistra, Strumenti a destra -->
+            <div class="gantt-toolbar d-flex align-items-center justify-content-between" style="padding: 10px 20px; border-bottom: 1px solid #e0e0e0; background: #f8f9fa; flex-shrink: 0;">
+
+                <!-- PARTE SINISTRA: PULSANTE MENU + FILTRI -->
+                <div class="d-flex align-items-center" style="gap: 15px;">
+
+                    <button type="button" class="btn btn-sm btn-light border gantt-toggle-sidebar-btn" title="Mostra/Nascondi Tabella Laterale" style="width: 32px; padding: 4px 0;">
+                        <i class="fa fa-bars text-dark"/>
+                    </button>
+
+                    <input type="text" id="gantt_search_task" class="form-control form-control-sm" placeholder="🔍 Cerca Task..." style="width: 200px;" />
+
+                    <div class="d-flex align-items-center" style="gap: 5px;">
+                        <label for="user_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Assegnato a:</label>
+                        <select id="user_filter" class="form-control form-control-sm" style="width: 160px;">
+                            <option value="all">Tutti gli Utenti</option>
+                        </select>
+                    </div>
+
+                    <div id="project_filter_container" class="d-flex align-items-center" style="gap: 5px;">
+                        <label for="project_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Progetto:</label>
+                        <select id="project_filter" class="form-control form-control-sm" style="width: 160px;">
+                            <option value="all">Tutti i Progetti</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PARTE DESTRA: AZIONI E ZOOM -->
+                <div class="d-flex align-items-center" style="gap: 15px;">
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <!-- Aggiorna-->
+                        <button type="button" class="btn btn-sm btn-light border gantt-refresh-btn" title="Ricarica Dati dal Database">
+                            <i class="fa fa-refresh text-dark"/>
+                        </button>
+
+                        <!-- BOTTONE PDF -->
+                        <button type="button" class="btn btn-sm btn-outline-danger gantt-export-pdf-btn" title="Esporta in PDF">
+                            <i class="fa fa-file-pdf-o"/> PDF
+                        </button>
+
+                        <!-- PULSANTE OGGI -->
+                        <button type="button" class="btn btn-sm btn-primary gantt-today-btn" style="font-weight: 500;">Oggi</button>
+                    </div>
+
+                    <div class="d-flex align-items-center" style="gap: 8px;">
+                        <span style="font-size: 12px; font-weight: 600; color: #6c757d;">Vista:</span>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-primary gantt-zoom-btn active" data-mode="day">Giorno</button>
+                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="week">Settimana</button>
+                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="month">Mese</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CONTENITORE DHTMLX -->
+            <div id="dhtmlx_gantt_container" style="flex-grow: 1; width: 100%; min-height: 0;"/>
+
+        </div>
+    </t>
+</templates>

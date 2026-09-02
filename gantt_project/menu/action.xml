@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2025 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+
+    <record id="action_project_gantt_custom" model="ir.actions.client">
+        <field name="name">Gantt Pianificazione</field>
+        <field name="tag">custom_project_gantt</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2025 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+
+    <record id="action_project_single_gantt" model="ir.actions.client">
+        <field name="name">Pianificazione Gantt</field>
+        <field name="tag">custom_project_gantt</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="view_project_project_form_inherit_gantt" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.gantt</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_project_single_gantt)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-tasks"
+                        context="{'default_project_id': active_id, 'active_id': active_id}">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Vista</span>
+                        <span class="o_stat_text">Gantt</span>
+                    </div>
+                </button>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
