@@ -137,7 +137,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         _initDHTMLXGantt: function () {
             var self = this;
 
-            // 1. IMPOSTIAMO LA LINGUA PER PRIMA COSA (per evitare che sovrascriva le label dopo)
             gantt.i18n.setLocale("it");
 
             gantt.plugins({
@@ -153,11 +152,16 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.duration_unit = "day";
             gantt.config.show_grid = true;
 
-            // --- RIMOZIONE BOTTONE ELIMINA ---
+            // Abilita lo scorrimento automatico se si trascina un task ai bordi dello schermo
+            gantt.config.autoscroll = true;
+            gantt.config.autoscroll_speed = 50;
+
             gantt.config.buttons_left = ["gantt_save_btn", "gantt_cancel_btn"];
             gantt.config.buttons_right = [];
 
-            // --- REGISTRAZIONE CONTROLLI CUSTOM (COLORI E DATE) ---
+            // --- REGISTRAZIONE CONTROLLI CUSTOM ---
+
+            // 1. Colori
             gantt.form_blocks["custom_color"] = {
                 render: function (sns) {
                     var html = "<div class='gantt-custom-colors' style='padding: 5px 10px; display: flex; flex-wrap: wrap; gap: 8px;'>";
@@ -194,6 +198,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 focus: function (node) {}
             };
 
+            // 2. Date
             gantt.form_blocks["custom_dates"] = {
                 render: function (sns) {
                     return "<div class='gantt-custom-dates' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
@@ -242,10 +247,35 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 focus: function (node) { node.querySelector(".g-start-date").focus(); }
             };
 
-            // --- CONFIGURAZIONE SEZIONI LIGHTBOX E TESTI TRADOTTI ---
+            // 3. Slider Avanzamento
+            gantt.form_blocks["custom_progress"] = {
+                render: function (sns) {
+                    return "<div class='gantt-custom-progress' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
+                           "<input type='range' class='g-progress-slider' min='0' max='100' step='5' style='flex-grow: 1; cursor: pointer;'>" +
+                           "<span class='g-progress-value' style='font-weight: bold; width: 45px; text-align: right; color: #017e84;'>0%</span>" +
+                           "</div>";
+                },
+                set_value: function (node, value, task) {
+                    var slider = node.querySelector(".g-progress-slider");
+                    var label = node.querySelector(".g-progress-value");
+                    var val = Math.round((task.progress || 0) * 100);
+                    slider.value = val;
+                    label.innerText = val + "%";
+                    slider.oninput = function() {
+                        label.innerText = this.value + "%";
+                    };
+                },
+                get_value: function (node, task) {
+                    return parseInt(node.querySelector(".g-progress-slider").value) / 100;
+                },
+                focus: function (node) { }
+            };
+
+            // --- TRADUZIONI E SETUP LIGHTBOX ---
             gantt.locale.labels.section_description = "Nome Task";
             gantt.locale.labels.section_user = "Assegnatario";
-            gantt.locale.labels.section_color = "Colore";
+            gantt.locale.labels.section_color = "Colore Odoo";
+            gantt.locale.labels.section_progress = "Avanzamento";
             gantt.locale.labels.section_time = "Periodo";
 
             gantt.serverList("users", self.dhtmlx_users);
@@ -270,9 +300,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "description", height: 38, map_to: "text", type: "textarea", focus: true},
                 {name: "user", height: 30, map_to: "user_id", type: "select", options: gantt.serverList("users")},
                 {name: "color", height: 45, map_to: "odoo_color_id", type: "custom_color", options: gantt.serverList("colors")},
+                {name: "progress", height: 35, map_to: "progress", type: "custom_progress"},
                 {name: "time", height: 40, map_to: "auto", type: "custom_dates"}
             ];
-
             // ------------------------------------------
 
             gantt.templates.task_class = function(start, end, task) {
@@ -517,6 +547,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 var dhtmlxLinks = [];
                 var projectsAdded = [];
 
+                // Variabili per calcolare il range dinamico della timeline
+                var minDate = moment();
+                var maxDate = moment();
+
                 var odooColors = {
                     0: "#a8a8a8", 1: "#f06050", 2: "#f4a460", 3: "#f7cd1f",
                     4: "#6cc1ed", 5: "#814968", 6: "#eb7e7f", 7: "#2c8397",
@@ -526,8 +560,12 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 tasks.forEach(function(t) {
                     if (self.current_project_id && t.project_id && t.project_id[0] !== self.current_project_id) return;
 
-                    var startLocal = moment.utc(t.date_start).local().format("YYYY-MM-DD 00:00:00");
-                    var endLocal = moment.utc(t.date_deadline).local().format("YYYY-MM-DD 23:59:59");
+                    var startLocal = moment.utc(t.date_start).local();
+                    var endLocal = moment.utc(t.date_deadline).local();
+
+                    // Ricalcoliamo il Min e il Max per allargare la timeline
+                    if (startLocal.isBefore(minDate)) minDate = startLocal;
+                    if (endLocal.isAfter(maxDate)) maxDate = endLocal;
 
                     var projId = t.project_id ? "proj_" + t.project_id[0] : "proj_0";
                     var projName = t.project_id ? t.project_id[1] : "Senza Progetto";
@@ -539,7 +577,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
                     var taskColor = odooColors[t.color || 0] || odooColors[0];
                     dhtmlxTasks.push({
-                        id: t.id, text: t.name, start_date: startLocal, end_date: endLocal, end_date_raw: moment.utc(t.date_deadline).local().toDate(),
+                        id: t.id, text: t.name, start_date: startLocal.format("YYYY-MM-DD 00:00:00"),
+                        end_date: endLocal.format("YYYY-MM-DD 23:59:59"),
+                        end_date_raw: endLocal.toDate(),
                         progress: (t.progress || 0) / 100, parent: projId, user_id: t.user_id ? t.user_id[0] : false,
                         odoo_color_id: t.color || 0,
                         assignee: t.user_id ? t.user_id[1] : 'Nessuno', stage: t.stage_id ? t.stage_id[1] : '', color: taskColor
@@ -551,6 +591,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                         });
                     }
                 });
+
+                // IMPOSTAZIONE TIMELINE "INFINITA": 3 mesi prima del task più vecchio, 1 anno dopo il più nuovo
+                gantt.config.start_date = minDate.clone().subtract(3, 'months').toDate();
+                gantt.config.end_date = maxDate.clone().add(12, 'months').toDate();
 
                 gantt.clearAll();
                 gantt.parse({ data: dhtmlxTasks, links: dhtmlxLinks });
