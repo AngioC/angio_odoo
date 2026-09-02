@@ -19,6 +19,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             'click .gantt-toggle-sidebar-btn': '_onToggleSidebar',
             'click .gantt-export-pdf-btn': '_onExportPDF',
             'click .gantt-refresh-btn': '_onRefreshClick',
+            'click .gantt-zoom-in-btn': '_onZoomIn',   // <--- Evento Zoom In
+            'click .gantt-zoom-out-btn': '_onZoomOut', // <--- Evento Zoom Out
         },
 
         init: function (parent, action) {
@@ -67,7 +69,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             this._super.apply(this, arguments);
         },
 
-        // --- NUOVE FUNZIONI DI EXPORT ---
+        // --- FUNZIONI DI EXPORT E REFRESH ---
         _onExportPDF: function () {
             if (this.gantt_initialized && typeof gantt.exportToPDF !== "undefined") {
                 gantt.exportToPDF({
@@ -90,6 +92,38 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     $icon.removeClass('fa-spin');
                 });
             }
+        },
+
+        // --- FUNZIONI DI ZOOM ---
+        _onChangeZoom: function (ev) {
+            var mode = $(ev.currentTarget).data('mode');
+            gantt.ext.zoom.setLevel(mode);
+            this._syncZoomButtons(); // Aggiorna i colori dei pulsanti
+        },
+
+        _onZoomIn: function () {
+            if (this.gantt_initialized) {
+                gantt.ext.zoom.zoomIn();
+                this._syncZoomButtons();
+            }
+        },
+
+        _onZoomOut: function () {
+            if (this.gantt_initialized) {
+                gantt.ext.zoom.zoomOut();
+                this._syncZoomButtons();
+            }
+        },
+
+        _syncZoomButtons: function () {
+            // Otteniamo il livello attuale di zoom da DHTMLX
+            var currentLevel = gantt.ext.zoom.getCurrentLevel();
+
+            // Spegniamo tutti i bottoni centrali
+            this.$('.gantt-zoom-btn').removeClass('active btn-primary').addClass('btn-secondary');
+
+            // Accendiamo solo quello corrispondente al livello attuale
+            this.$('.gantt-zoom-btn[data-mode="' + currentLevel + '"]').removeClass('btn-secondary').addClass('active btn-primary');
         },
         // --------------------------------
 
@@ -310,14 +344,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         _onSearchTaskInput: function (ev) {
             this.search_task_query = $(ev.currentTarget).val();
             if (this.gantt_initialized) gantt.refreshData();
-        },
-
-        _onChangeZoom: function (ev) {
-            var $btn = $(ev.currentTarget);
-            var mode = $btn.data('mode');
-            this.$('.gantt-zoom-btn').removeClass('active btn-primary').addClass('btn-secondary');
-            $btn.removeClass('btn-secondary').addClass('active btn-primary');
-            gantt.ext.zoom.setLevel(mode);
         },
 
         _onTodayClick: function () {

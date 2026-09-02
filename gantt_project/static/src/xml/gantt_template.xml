@@ -76,9 +76,19 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                     <div class="d-flex align-items-center" style="gap: 8px;">
                         <span style="font-size: 12px; font-weight: 600; color: #6c757d;">Vista:</span>
                         <div class="btn-group btn-group-sm" role="group">
+                            <!-- BOTTONE ZOOM OUT (-) -->
+                            <button type="button" class="btn btn-secondary gantt-zoom-out-btn" title="Riduci (Zoom Out)">
+                                <i class="fa fa-search-minus"/>
+                            </button>
+                            <!-- BOTTONE ZOOM IN (+) -->
+                            <button type="button" class="btn btn-secondary gantt-zoom-in-btn" title="Ingrandisci (Zoom In)">
+                                <i class="fa fa-search-plus"/>
+                            </button>
+
                             <button type="button" class="btn btn-primary gantt-zoom-btn active" data-mode="day">Giorno</button>
                             <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="week">Settimana</button>
                             <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="month">Mese</button>
+
                         </div>
                     </div>
                 </div>
