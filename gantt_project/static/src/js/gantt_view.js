@@ -4,7 +4,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
     var AbstractAction = require('web.AbstractAction');
     var core = require('web.core');
     var rpc = require('web.rpc');
-    var ajax = require('web.ajax'); // <--- 1. Importiamo ajax per caricare lo script esterno
+    var ajax = require('web.ajax');
 
     var GanttView = AbstractAction.extend({
         template: 'CustomGantt.MainView',
@@ -19,8 +19,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             'click .gantt-toggle-sidebar-btn': '_onToggleSidebar',
             'click .gantt-export-pdf-btn': '_onExportPDF',
             'click .gantt-refresh-btn': '_onRefreshClick',
-            'click .gantt-zoom-in-btn': '_onZoomIn',   // <--- Evento Zoom In
-            'click .gantt-zoom-out-btn': '_onZoomOut', // <--- Evento Zoom Out
+            'click .gantt-zoom-in-btn': '_onZoomIn',
+            'click .gantt-zoom-out-btn': '_onZoomOut',
         },
 
         init: function (parent, action) {
@@ -41,8 +41,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             var self = this;
 
             return this._super.apply(this, arguments).then(function () {
-
-                // 2. CARICAMENTO PIGRO DELL'API DI EXPORT DHTMLX (non influisce su Odoo)
                 ajax.loadJS("https://export.dhtmlx.com/gantt/api.js").then(function() {
                     console.log("DHTMLX Export API caricata con successo.");
                 });
@@ -69,7 +67,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             this._super.apply(this, arguments);
         },
 
-        // --- FUNZIONI DI EXPORT E REFRESH ---
         _onExportPDF: function () {
             if (this.gantt_initialized && typeof gantt.exportToPDF !== "undefined") {
                 gantt.exportToPDF({
@@ -81,24 +78,20 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         },
 
         _onRefreshClick: function () {
-            // Ricarica semplicemente i task e ridisegna il grafico applicando i filtri attuali
             if (this.gantt_initialized) {
-                // Cambiamo temporaneamente l'icona per dare un feedback visivo del caricamento
                 var $icon = this.$('.gantt-refresh-btn i');
                 $icon.addClass('fa-spin');
 
                 this._loadAndRenderGantt().then(function() {
-                    // Fermiamo l'animazione di caricamento appena i dati sono pronti
                     $icon.removeClass('fa-spin');
                 });
             }
         },
 
-        // --- FUNZIONI DI ZOOM ---
         _onChangeZoom: function (ev) {
             var mode = $(ev.currentTarget).data('mode');
             gantt.ext.zoom.setLevel(mode);
-            this._syncZoomButtons(); // Aggiorna i colori dei pulsanti
+            this._syncZoomButtons();
         },
 
         _onZoomIn: function () {
@@ -116,16 +109,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         },
 
         _syncZoomButtons: function () {
-            // Otteniamo il livello attuale di zoom da DHTMLX
             var currentLevel = gantt.ext.zoom.getCurrentLevel();
-
-            // Spegniamo tutti i bottoni centrali
             this.$('.gantt-zoom-btn').removeClass('active btn-primary').addClass('btn-secondary');
-
-            // Accendiamo solo quello corrispondente al livello attuale
             this.$('.gantt-zoom-btn[data-mode="' + currentLevel + '"]').removeClass('btn-secondary').addClass('active btn-primary');
         },
-        // --------------------------------
 
         _loadUsers: function () {
             var self = this;
@@ -262,6 +249,23 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 ]
             });
             gantt.ext.zoom.setLevel("day");
+
+            // --- NUOVO CONTROLLO SULLE DATE ---
+            gantt.attachEvent("onBeforeTaskUpdate", function(id, task) {
+                if (task.type === 'project') return true;
+
+                // Controlla se la data di fine è precedente o uguale a quella di inizio
+                if (task.start_date >= task.end_date) {
+                    self.displayNotification({
+                        title: "Errore Date",
+                        message: "La data di inizio deve essere precedente alla data di fine.",
+                        type: "danger"
+                    });
+                    return false; // Blocca la modifica e fa tornare la barra dov'era
+                }
+                return true;
+            });
+            // ----------------------------------
 
             gantt.attachEvent("onAfterTaskUpdate", function(id, task){
                 if (task.type === 'project') return;
