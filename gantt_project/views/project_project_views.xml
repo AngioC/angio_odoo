@@ -6,7 +6,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
 <odoo>
 
     <record id="action_project_single_gantt" model="ir.actions.client">
-        <field name="name">Pianificazione Gantt</field>
+        <field name="name">Gantt chart</field>
         <field name="tag">custom_project_gantt</field>
         <field name="target">current</field>
     </record>
@@ -24,8 +24,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                         icon="fa-tasks"
                         context="{'default_project_id': active_id, 'active_id': active_id}">
                     <div class="o_stat_info">
-                        <span class="o_stat_text">Vista</span>
                         <span class="o_stat_text">Gantt</span>
+                        <span class="o_stat_text">View</span>
                     </div>
                 </button>
             </xpath>

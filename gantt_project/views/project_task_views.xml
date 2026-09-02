@@ -13,10 +13,10 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                 <field name="date_start"/>
             </xpath>
             <xpath expr="//field[@name='user_id']" position="after">
-                <field name="color" widget="color_picker" string="Colore"/>
+                <field name="color" widget="color_picker" string="Color"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Impostazioni Gantt">
+                <page string="Gantt settings">
                     <group>
                         <field name="progress"/>
                         <field name="dependency_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('project_id', '=', project_id), ('id', '!=', id)]"/>

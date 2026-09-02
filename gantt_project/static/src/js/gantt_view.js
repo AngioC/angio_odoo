@@ -39,22 +39,18 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
             this.dhtmlx_users = [];
             this.dhtmlx_stages = [];
-            this.all_stages_data = []; // Memorizza i dati grezzi delle fasi con i loro progetti
+            this.all_stages_data = [];
         },
 
         start: function () {
             var self = this;
 
             return this._super.apply(this, arguments).then(function () {
-
-                // 1. Controlliamo se l'utente ha il gruppo "Amministratore Progetti"
                 session.user_has_group('project.group_project_manager').then(function (isManager) {
-
-                    // Salviamo il permesso in una variabile del nostro modulo
                     self.is_gantt_manager = isManager;
 
                     ajax.loadJS("https://export.dhtmlx.com/gantt/api.js").then(function() {
-                        console.log("DHTMLX Export API caricata con successo.");
+                        console.log("DHTMLX Export API loaded successfully.");
                     });
 
                     $.when(self._loadProjects(), self._loadUsers(), self._loadStages()).then(function() {
@@ -82,14 +78,13 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
         _onExportPDF: function () {
             if (this.gantt_initialized && typeof gantt.exportToPDF !== "undefined") {
-
                 var tasks = gantt.getTaskByTime();
 
                 if (!tasks || tasks.length === 0) {
                     gantt.exportToPDF({
-                        name: "Pianificazione_Progetti.pdf",
-                        header: "<h1>Pianificazione Progetti Odoo</h1>",
-                        locale: "it"
+                        name: "Project_Planning.pdf",
+                        header: "<h1>Odoo Project Planning</h1>",
+                        locale: "en"
                     });
                     return;
                 }
@@ -108,9 +103,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 var formatStr = gantt.date.date_to_str(gantt.config.date_format);
 
                 gantt.exportToPDF({
-                    name: "Pianificazione_Progetti.pdf",
-                    header: "<h1>Pianificazione Progetti Odoo</h1>",
-                    locale: "it",
+                    name: "Project_Planning.pdf",
+                    header: "<h1>Odoo Project Planning</h1>",
+                    locale: "en",
                     start: formatStr(exportStart),
                     end: formatStr(exportEnd),
                     server: "https://export.dhtmlx.com/gantt",
@@ -166,7 +161,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 fields: ['id', 'name']
             }).then(function (users) {
                 var $select = self.$el.find('#user_filter');
-                self.dhtmlx_users = [{key: false, label: "Nessuno"}];
+                self.dhtmlx_users = [{key: false, label: "Unassigned"}];
 
                 users.forEach(function (u) {
                     $select.append($('<option>', { value: u.id, text: u.name }));
@@ -175,7 +170,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             });
         },
 
-        // AGGIORNATO: Ora carichiamo anche i project_ids associati a ogni fase
         _loadStages: function () {
             var self = this;
             return rpc.query({
@@ -183,7 +177,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 method: 'search_read',
                 fields: ['id', 'name', 'project_ids']
             }).then(function (stages) {
-                self.all_stages_data = stages; // Salviamo i dati per poterli filtrare dopo
+                self.all_stages_data = stages;
                 self.dhtmlx_stages = [];
                 stages.forEach(function (s) {
                     self.dhtmlx_stages.push({key: s.id, label: s.name});
@@ -194,10 +188,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         _initDHTMLXGantt: function () {
             var self = this;
 
-            gantt.i18n.setLocale("it");
+            gantt.i18n.setLocale("en");
 
-            // --- IMPOSTAZIONE PERMESSI ---
-            // Se non è un manager, il Gantt diventa di sola lettura
             gantt.config.readonly = !self.is_gantt_manager;
 
             gantt.plugins({
@@ -219,7 +211,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.buttons_left = ["gantt_save_btn", "gantt_cancel_btn"];
             gantt.config.buttons_right = [];
 
-            // --- REGISTRAZIONE CONTROLLI CUSTOM ---
             gantt.form_blocks["custom_color"] = {
                 render: function (sns) {
                     var html = "<div class='gantt-custom-colors' style='padding: 5px 10px; display: flex; flex-wrap: wrap; gap: 8px;'>";
@@ -259,8 +250,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.form_blocks["custom_dates"] = {
                 render: function (sns) {
                     return "<div class='gantt-custom-dates' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
-                           "<label style='font-weight: bold; font-size: 13px;'>Data Inizio: <input type='date' class='g-start-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
-                           "<label style='font-weight: bold; font-size: 13px;'>Data Fine: <input type='date' class='g-end-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
+                           "<label style='font-weight: bold; font-size: 13px;'>Start Date: <input type='date' class='g-start-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
+                           "<label style='font-weight: bold; font-size: 13px;'>End Date: <input type='date' class='g-end-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
                            "</div>";
                 },
                 set_value: function (node, value, task) {
@@ -327,30 +318,29 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 focus: function (node) { }
             };
 
-            // --- TRADUZIONI E SETUP LIGHTBOX ---
-            gantt.locale.labels.section_description = "Nome Task";
-            gantt.locale.labels.section_stage = "Stato";
-            gantt.locale.labels.section_user = "Assegnatario";
-            gantt.locale.labels.section_color = "Colore Odoo";
-            gantt.locale.labels.section_progress = "Avanzamento";
-            gantt.locale.labels.section_time = "Periodo";
+            gantt.locale.labels.section_description = "Task Name";
+            gantt.locale.labels.section_stage = "Stage";
+            gantt.locale.labels.section_user = "Assignee";
+            gantt.locale.labels.section_color = "Odoo Color";
+            gantt.locale.labels.section_progress = "Progress";
+            gantt.locale.labels.section_time = "Time Period";
 
             gantt.serverList("users", self.dhtmlx_users);
             gantt.serverList("stages", self.dhtmlx_stages);
 
             var odooColorsData = [
-                {key: 0, label: "Grigio (Standard)", color: "#a8a8a8"},
-                {key: 1, label: "Rosso", color: "#f06050"},
-                {key: 2, label: "Arancione", color: "#f4a460"},
-                {key: 3, label: "Giallo", color: "#f7cd1f"},
-                {key: 4, label: "Azzurro", color: "#6cc1ed"},
-                {key: 5, label: "Bordeaux", color: "#814968"},
-                {key: 6, label: "Rosa", color: "#eb7e7f"},
-                {key: 7, label: "Ottanio", color: "#2c8397"},
-                {key: 8, label: "Blu Scuro", color: "#475577"},
+                {key: 0, label: "Gray (Standard)", color: "#a8a8a8"},
+                {key: 1, label: "Red", color: "#f06050"},
+                {key: 2, label: "Orange", color: "#f4a460"},
+                {key: 3, label: "Yellow", color: "#f7cd1f"},
+                {key: 4, label: "Light Blue", color: "#6cc1ed"},
+                {key: 5, label: "Burgundy", color: "#814968"},
+                {key: 6, label: "Pink", color: "#eb7e7f"},
+                {key: 7, label: "Teal", color: "#2c8397"},
+                {key: 8, label: "Dark Blue", color: "#475577"},
                 {key: 9, label: "Magenta", color: "#d6145f"},
-                {key: 10, label: "Verde", color: "#30c381"},
-                {key: 11, label: "Viola", color: "#9365b8"}
+                {key: 10, label: "Green", color: "#30c381"},
+                {key: 11, label: "Purple", color: "#9365b8"}
             ];
             gantt.serverList("colors", odooColorsData);
 
@@ -363,11 +353,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "time", height: 40, map_to: "auto", type: "custom_dates"}
             ];
 
-            // NUOVO EVENTO: Aggiorna dinamicamente la lista delle fasi prima di aprire il Lightbox
             gantt.attachEvent("onBeforeLightbox", function(id) {
                 var task = gantt.getTask(id);
 
-                // Capiamo a che progetto appartiene il task (task.parent è tipo "proj_12")
                 var projectId = false;
                 if (task.parent && String(task.parent).indexOf("proj_") === 0) {
                     projectId = parseInt(task.parent.replace("proj_", ""));
@@ -376,7 +364,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 var filteredStages = [];
 
                 if (projectId && self.all_stages_data) {
-                    // Filtriamo solo le fasi in cui project_ids contiene il nostro projectId
                     self.all_stages_data.forEach(function (s) {
                         if (s.project_ids && s.project_ids.indexOf(projectId) !== -1) {
                             filteredStages.push({key: s.id, label: s.name});
@@ -384,10 +371,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     });
                 }
 
-                // Se il progetto non ha fasi specifiche, le mostriamo tutte come fallback
                 var stagesToLoad = filteredStages.length > 0 ? filteredStages : self.dhtmlx_stages;
 
-                // Se il task ha già una fase assegnata che (magari per errore) non è nella lista, aggiungiamola temporaneamente
                 var hasCurrentStage = stagesToLoad.find(function(s) { return s.key == task.stage_id; });
                 if (task.stage_id && !hasCurrentStage) {
                     var currentStageData = self.all_stages_data.find(function(s) { return s.id == task.stage_id; });
@@ -396,7 +381,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     }
                 }
 
-                // Iniettiamo la lista filtrata nel popup
                 gantt.updateCollection("stages", stagesToLoad);
                 return true;
             });
@@ -440,42 +424,42 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 if (task.type === 'project') {
                     return "<div style='padding: 5px; font-family: sans-serif;'>" +
                            "<h5 style='margin: 0 0 5px 0; color: #017e84; font-weight: bold;'>📁 " + task.text + "</h5>" +
-                           "<div style='font-size: 13px;'><b>Inizio:</b> " + start_str + "<br/><b>Fine:</b> " + end_str + "</div>" +
+                           "<div style='font-size: 13px;'><b>Start:</b> " + start_str + "<br/><b>End:</b> " + end_str + "</div>" +
                            "</div>";
                 }
 
                 var progress = Math.round(task.progress * 100);
                 var isOverdue = task.end_date < new Date() && task.progress < 1;
-                var overdueWarning = isOverdue ? "<br/><b style='color: #dc3545;'>⚠️ IN RITARDO!</b>" : "";
+                var overdueWarning = isOverdue ? "<br/><b style='color: #dc3545;'>⚠️ OVERDUE!</b>" : "";
 
                 return "<div style='padding: 5px; font-family: sans-serif;'>" +
                        "<h5 style='margin: 0 0 5px 0; color: #017e84; font-weight: bold;'>" + task.text + "</h5>" +
                        "<div style='font-size: 13px;'>" +
-                       "<b>Inizio:</b> " + start_str + "<br/>" +
-                       "<b>Fine:</b> " + end_str + "<br/>" +
-                       "<b>Assegnato a:</b> " + task.assignee + "<br/>" +
-                       "<b>Stato:</b> " + (task.stage || 'N/D') + "<br/>" +
-                       "<b>Avanzamento:</b> " + progress + "%" +
+                       "<b>Start:</b> " + start_str + "<br/>" +
+                       "<b>End:</b> " + end_str + "<br/>" +
+                       "<b>Assignee:</b> " + task.assignee + "<br/>" +
+                       "<b>Stage:</b> " + (task.stage || 'N/A') + "<br/>" +
+                       "<b>Progress:</b> " + progress + "%" +
                        overdueWarning +
                        "</div></div>";
             };
 
             gantt.config.columns = [
-                {name: "text", label: "Progetto / Task", tree: true, width: 220, template: function(obj) {
+                {name: "text", label: "Project / Task", tree: true, width: 220, template: function(obj) {
                     if (obj.type === 'project') return obj.text;
                     var isOverdue = obj.end_date < new Date() && obj.progress < 1;
                     return isOverdue ? "⚠️ " + obj.text : obj.text;
                 }},
-                {name: "assignee", label: "Assegnato a", align: "center", width: 110},
-                {name: "stage", label: "Stato", align: "center", width: 100, template: function(obj) {
+                {name: "assignee", label: "Assignee", align: "center", width: 110},
+                {name: "stage", label: "Stage", align: "center", width: 100, template: function(obj) {
                     if (obj.type === 'project' || !obj.stage) return "";
                     return "<span class='badge badge-secondary' style='font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 10px; background-color: #6c757d; color: #fff; line-height: 1;'>" + obj.stage + "</span>";
                 }},
-                {name: "duration", label: "Durata", align: "center", width: 70, template: function(obj) {
+                {name: "duration", label: "Duration", align: "center", width: 70, template: function(obj) {
                     if (obj.type === 'project') return "";
-                    return obj.duration + " gg";
+                    return obj.duration + " d";
                 }},
-                {name: "start_date", label: "Inizio", align: "center", width: 85, template: function(obj) {
+                {name: "start_date", label: "Start", align: "center", width: 85, template: function(obj) {
                     return moment(obj.start_date).format('DD/MM/YY');
                 }}
             ];
@@ -488,8 +472,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.ext.zoom.init({
                 levels: [
                     { name: "day", scale_height: 50, scales: [{unit: "day", step: 1, format: "%d %M"}] },
-                    { name: "week", scale_height: 50, scales: [{unit: "week", step: 1, format: "Sett. %W"}, {unit: "day", step: 1, format: "%d %M"}] },
-                    { name: "month", scale_height: 50, scales: [{unit: "month", step: 1, format: "%F %Y"}, {unit: "week", step: 1, format: "Sett. %W"}] }
+                    { name: "week", scale_height: 50, scales: [{unit: "week", step: 1, format: "Week %W"}, {unit: "day", step: 1, format: "%d %M"}] },
+                    { name: "month", scale_height: 50, scales: [{unit: "month", step: 1, format: "%F %Y"}, {unit: "week", step: 1, format: "Week %W"}] }
                 ]
             });
             gantt.ext.zoom.setLevel("day");
@@ -498,8 +482,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 if (task.type === 'project') return true;
                 if (task.start_date >= task.end_date) {
                     self.displayNotification({
-                        title: "Errore Date",
-                        message: "La data di inizio deve essere precedente alla data di fine.",
+                        title: "Date Error",
+                        message: "The start date must be before the end date.",
                         type: "danger"
                     });
                     return false;
@@ -512,11 +496,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 task.color = selectedColorObj ? selectedColorObj.color : odooColorsData[0].color;
 
                 var userObj = gantt.serverList("users").find(function(u) { return u.key == task.user_id; });
-                task.assignee = userObj ? userObj.label : 'Nessuno';
+                task.assignee = userObj ? userObj.label : 'Unassigned';
 
-                // Usiamo gantt.serverList("stages") che ora contiene i dati corretti per QUEL progetto
                 var stageObj = gantt.serverList("stages").find(function(s) { return s.key == task.stage_id; });
-                task.stage = stageObj ? stageObj.label : 'N/D';
+                task.stage = stageObj ? stageObj.label : 'N/A';
 
                 return true;
             });
@@ -540,22 +523,19 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 });
             });
 
-            // --- CONTROLLO DIPENDENZE TRA PROGETTI DIVERSI ---
             gantt.attachEvent("onBeforeLinkAdd", function(id, link) {
                 var sourceTask = gantt.getTask(link.source);
                 var targetTask = gantt.getTask(link.target);
 
-                // Verifichiamo che i task abbiano lo stesso parent (che corrisponde all'ID del progetto)
                 if (sourceTask.parent !== targetTask.parent) {
                     self.displayNotification({
-                        title: "Collegamento non valido",
-                        message: "Non puoi collegare task appartenenti a progetti diversi.",
+                        title: "Invalid Link",
+                        message: "You cannot link tasks belonging to different projects.",
                         type: "danger"
                     });
-                    return false; // Blocca la creazione e fa sparire la freccia
+                    return false;
                 }
 
-                // Blocchiamo anche i collegamenti accidentali verso le barre nere dei Progetti
                 if (sourceTask.type === 'project' || targetTask.type === 'project') {
                     return false;
                 }
@@ -681,7 +661,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     if (endLocal.isAfter(maxDate)) maxDate = endLocal;
 
                     var projId = t.project_id ? "proj_" + t.project_id[0] : "proj_0";
-                    var projName = t.project_id ? t.project_id[1] : "Senza Progetto";
+                    var projName = t.project_id ? t.project_id[1] : "No Project";
 
                     if (projectsAdded.indexOf(projId) === -1) {
                         dhtmlxTasks.push({ id: projId, text: projName, type: 'project', readonly: true, open: true, color: "#343a40", textColor: "#ffffff" });
@@ -696,7 +676,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                         progress: (t.progress || 0) / 100, parent: projId, user_id: t.user_id ? t.user_id[0] : false,
                         stage_id: t.stage_id ? t.stage_id[0] : false,
                         odoo_color_id: t.color || 0,
-                        assignee: t.user_id ? t.user_id[1] : 'Nessuno', stage: t.stage_id ? t.stage_id[1] : '', color: taskColor
+                        assignee: t.user_id ? t.user_id[1] : 'Unassigned', stage: t.stage_id ? t.stage_id[1] : '', color: taskColor
                     });
 
                     if (t.dependency_ids && t.dependency_ids.length > 0) {

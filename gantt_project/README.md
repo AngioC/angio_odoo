@@ -2,43 +2,50 @@
 
 # 📊 Odoo Custom Project Gantt
 
-Un modulo Odoo (v14) che integra la potente libreria **DHTMLX Gantt** all'interno dell'ecosistema Odoo, fornendo un'interfaccia di pianificazione progetti interattiva, moderna e completamente responsive.
+An Odoo (v14) module that integrates the powerful **DHTMLX Gantt** library within the Odoo ecosystem, providing an interactive, modern, and fully responsive project scheduling interface.
 
-Il modulo è progettato per funzionare sia come **Cruscotto Globale** (tutti i progetti), sia come **Vista di Dettaglio** (singolo progetto aperto tramite Smart Button), mantenendo intatta la navigazione nativa (Breadcrumbs) di Odoo.
+The module is designed to work both as a **Global Dashboard** (all projects) and as a **Detail View** (single project accessed via Smart Button), keeping Odoo's native navigation (Breadcrumbs) intact.
 
-## ✨ Funzionalità Principali
+## ✨ Key Features
 
-*   **Pianificazione Interattiva (Drag & Drop):** Modifica le date di inizio/fine e l'avanzamento (percentuale) dei task trascinando direttamente le barre nel grafico.
-*   **Gestione Dipendenze:** Crea e rimuovi relazioni (Finish-to-Start) tra i task unendo i "pallini" di collegamento ai lati delle barre. I dati vengono salvati automaticamente su Odoo tramite RPC.
-*   **Doppia Modalità di Visualizzazione:**
-    *   *Vista Globale:* Accessibile da menu, mostra tutti i progetti con possibilità di filtraggio.
-    *   *Vista Singolo Progetto:* Accessibile dallo Smart Button "Vista Gantt" all'interno della scheda di un progetto. Nasconde il filtro progetti e mostra solo l'alberatura pertinente.
-*   **Allarmi Visivi (Overdue Alerts):** I task che hanno superato la data di scadenza e non sono completati al 100% vengono automaticamente evidenziati con una grafica a strisce rosse d'emergenza e l'icona ⚠️.
-*   **Filtri Rapidi:** 
-    *   Ricerca live per **Nome Task**.
-    *   Filtro dinamico per **Assegnatario** (popolato con gli utenti interni di Odoo).
-*   **Esportazione e Strumenti:**
-    *   Esportazione nativa in **PDF** (tramite API DHTMLX).
-    *   Pulsante **Aggiorna (Refresh)** per ricaricare i dati da Odoo senza ricaricare la pagina web.
-    *   Livelli di **Zoom** multipli (Giorno, Settimana, Mese).
-    *   Pulsante **Oggi** per centrare la timeline sulla data odierna.
-*   **Interfaccia Pulita (UX):** Possibilità di nascondere o mostrare la tabella laterale di sinistra (Tree View) con un comodo pulsante a comparsa (☰) per massimizzare lo spazio dedicato alla timeline.
+*   **Interactive Scheduling (Drag & Drop):** Edit start/end dates and progress (percentage) of tasks by dragging the bars directly on the chart.
+*   **Integrated Quick Edit (Lightbox):** Double-click a task to open a lightning-fast panel (without reloading the page) to edit Name, Assignee, Dates (with HTML5 controls), Progress (via interactive slider), Color (with native visual picker), and Stage (dynamically filtered based on the project it belongs to).
+*   **Secure Dependency Management:** Create and remove relationships (Finish-to-Start) by linking the connection "dots" on the sides of the bars. The system proactively blocks the creation of invalid links (e.g., between tasks of different projects), both on the Gantt and in Odoo's native views.
+*   **Data Integrity and Security (RBAC):**
+    *   **Date Validation:** Strict control to prevent end dates before start dates, managed via dual validation (frontend for fluidity, Python constraints in backend for security).
+    *   **Permissions Management:** Automatic integration with Odoo's native groups. Standard users operate in view-only mode (Automated Read-Only), while "Project Managers" enable drag & drop and editing.
+*   **Infinite Timeline:** Dynamically extended workspace (months before and after tasks) with automatic scrolling (`autoscroll`) when dragging bars towards the edges of the screen.
+*   **Dual View Mode:**
+    *   *Global View:* Accessible from the menu, shows all projects with filtering capabilities.
+    *   *Single Project View:* Accessible from the "Gantt View" Smart Button inside a project form. Hides the project filter and shows only the relevant task tree.
+*   **Visual Alerts and Design (UX):** 
+    *   Tasks that have passed their deadline and are not 100% complete are highlighted with emergency red striped graphics and a ⚠️ icon.
+    *   Stage statuses rendered as compact, elegant, and neutral badges.
+    *   Ability to hide or show the left side table (Tree View) via a toggle button (☰) to maximize space.
+*   **Quick Filters:** 
+    *   Live search by **Task Name**.
+    *   Dynamic filter by **Assignee** (populated with Odoo internal users).
+*   **Export and Advanced Tools:**
+    *   **Smart PDF Export:** Automatically crops and centers the document, isolating the exact period of the tasks to ensure lightweight files and perfect layout in landscape format.
+    *   Multiple **Zoom** levels (Day, Week, Month) supported by quick zoom in/out buttons (+ and -).
+    *   **Refresh** button to reload background data (AJAX) without refreshing the web page.
+    *   **Today** button to quickly center the timeline.
 
-## 📦 Dipendenze
+## 📦 Dependencies
 
-Questo modulo richiede l'installazione dei seguenti moduli base di Odoo:
-*   **`project`** (Progetti - per la gestione dei task e dei progetti)
-*   **`web`** (Core UI - implicito in ogni modulo visivo)
+This module requires the installation of the following core Odoo modules:
+*   **`project`** (Projects - for task and project management)
+*   **`web`** (Core UI - implicit in every visual module)
 
-## 🚀 Installazione e Utilizzo
+## 🚀 Installation and Usage
 
-1.  Posiziona la cartella del modulo (es. `custom_gantt_project`) all'interno della directory `addons` della tua istanza Odoo.
-2.  Riavvia il servizio Odoo e aggiorna la Lista delle App.
-3.  Installa il modulo.
+1.  Place the module folder (e.g., `custom_gantt_project`) inside the `addons` directory of your Odoo instance.
+2.  Restart the Odoo service and update the Apps List.
+3.  Install the module.
 
-### Come accedere alla vista:
-*   **Menu principale progetti:** Clicca sulla voce di menu creata per accedere alla panoramica generale.
-*   **Singolo Progetto:** Apri l'app Progetti, entra nella form di un progetto specifico e clicca sullo Smart Button **"Vista Gantt"** in alto a destra.
+### How to access the view:
+*   **Projects Main Menu:** Click on the created menu item to access the general overview.
+*   **Single Project:** Open the Projects app, enter a specific project form, and click the **"Gantt View"** Smart Button in the top right corner.
 
 Credits
 =======

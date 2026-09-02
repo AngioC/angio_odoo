@@ -7,7 +7,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
     <t t-name="CustomGantt.MainView">
         <div class="o_custom_gantt_wrapper" style="height: 100%; display: flex; flex-direction: column; background: white; overflow: hidden;">
 
-            <!-- STILI PER WEEKEND, BADGES E RITARDI -->
+            <!-- STYLES FOR WEEKENDS, BADGES, AND OVERDUE ALERTS -->
             <style>
                 .gantt_task_cell.weekend {
                     background-color: #f4f5f7 !important;
@@ -29,73 +29,73 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                 }
             </style>
 
-            <!-- TOOLBAR UNIFICATA: Azioni rapide e Filtri a sinistra, Strumenti a destra -->
+            <!-- UNIFIED TOOLBAR: Quick Actions & Filters (Left), Tools (Right) -->
             <div class="gantt-toolbar d-flex align-items-center justify-content-between" style="padding: 10px 20px; border-bottom: 1px solid #e0e0e0; background: #f8f9fa; flex-shrink: 0;">
 
-                <!-- PARTE SINISTRA: PULSANTE MENU + FILTRI -->
+                <!-- LEFT SIDE: MENU TOGGLE + FILTERS -->
                 <div class="d-flex align-items-center" style="gap: 15px;">
 
-                    <button type="button" class="btn btn-sm btn-light border gantt-toggle-sidebar-btn" title="Mostra/Nascondi Tabella Laterale" style="width: 32px; padding: 4px 0;">
+                    <button type="button" class="btn btn-sm btn-light border gantt-toggle-sidebar-btn" title="Toggle Sidebar" style="width: 32px; padding: 4px 0;">
                         <i class="fa fa-bars text-dark"/>
                     </button>
 
-                    <input type="text" id="gantt_search_task" class="form-control form-control-sm" placeholder="🔍 Cerca Task..." style="width: 200px;" />
+                    <input type="text" id="gantt_search_task" class="form-control form-control-sm" placeholder="🔍 Search Tasks..." style="width: 200px;" />
 
                     <div class="d-flex align-items-center" style="gap: 5px;">
-                        <label for="user_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Assegnato a:</label>
+                        <label for="user_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Assigned to:</label>
                         <select id="user_filter" class="form-control form-control-sm" style="width: 160px;">
-                            <option value="all">Tutti gli Utenti</option>
+                            <option value="all">All Users</option>
                         </select>
                     </div>
 
                     <div id="project_filter_container" class="d-flex align-items-center" style="gap: 5px;">
-                        <label for="project_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Progetto:</label>
+                        <label for="project_filter" class="mb-0 font-weight-bold" style="font-size: 13px;">Project:</label>
                         <select id="project_filter" class="form-control form-control-sm" style="width: 160px;">
-                            <option value="all">Tutti i Progetti</option>
+                            <option value="all">All Projects</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- PARTE DESTRA: AZIONI E ZOOM -->
+                <!-- RIGHT SIDE: ACTIONS & ZOOM -->
                 <div class="d-flex align-items-center" style="gap: 15px;">
                     <div class="d-flex align-items-center" style="gap: 8px;">
-                        <!-- Aggiorna-->
-                        <button type="button" class="btn btn-sm btn-light border gantt-refresh-btn" title="Ricarica Dati dal Database">
+                        <!-- REFRESH BUTTON -->
+                        <button type="button" class="btn btn-sm btn-light border gantt-refresh-btn" title="Reload Data">
                             <i class="fa fa-refresh text-dark"/>
                         </button>
 
-                        <!-- BOTTONE PDF -->
-                        <button type="button" class="btn btn-sm btn-outline-danger gantt-export-pdf-btn" title="Esporta in PDF">
+                        <!-- PDF EXPORT BUTTON -->
+                        <button type="button" class="btn btn-sm btn-outline-danger gantt-export-pdf-btn" title="Export to PDF">
                             <i class="fa fa-file-pdf-o"/> PDF
                         </button>
 
-                        <!-- PULSANTE OGGI -->
-                        <button type="button" class="btn btn-sm btn-primary gantt-today-btn" style="font-weight: 500;">Oggi</button>
+                        <!-- TODAY BUTTON -->
+                        <button type="button" class="btn btn-sm btn-primary gantt-today-btn" style="font-weight: 500;">Today</button>
                     </div>
 
                     <div class="d-flex align-items-center" style="gap: 8px;">
-                        <span style="font-size: 12px; font-weight: 600; color: #6c757d;">Vista:</span>
+                        <span style="font-size: 12px; font-weight: 600; color: #6c757d;">View:</span>
                         <div class="btn-group btn-group-sm" role="group">
-                            <!-- BOTTONE ZOOM OUT (-) -->
-                            <button type="button" class="btn btn-secondary gantt-zoom-out-btn" title="Riduci (Zoom Out)">
+                            <!-- ZOOM OUT BUTTON (-) -->
+                            <button type="button" class="btn btn-secondary gantt-zoom-out-btn" title="Zoom Out">
                                 <i class="fa fa-search-minus"/>
                             </button>
-                            <!-- BOTTONE ZOOM IN (+) -->
-                            <button type="button" class="btn btn-secondary gantt-zoom-in-btn" title="Ingrandisci (Zoom In)">
+                            <!-- ZOOM IN BUTTON (+) -->
+                            <button type="button" class="btn btn-secondary gantt-zoom-in-btn" title="Zoom In">
                                 <i class="fa fa-search-plus"/>
                             </button>
 
-                            <button type="button" class="btn btn-primary gantt-zoom-btn active" data-mode="day">Giorno</button>
-                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="week">Settimana</button>
-                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="month">Mese</button>
-
+                            <!-- VIEW MODES -->
+                            <button type="button" class="btn btn-primary gantt-zoom-btn active" data-mode="day">Day</button>
+                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="week">Week</button>
+                            <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="month">Month</button>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- CONTENITORE DHTMLX -->
+            <!-- DHTMLX CONTAINER -->
             <div id="dhtmlx_gantt_container" style="flex-grow: 1; width: 100%; min-height: 0;"/>
 
         </div>

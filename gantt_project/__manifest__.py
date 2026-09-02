@@ -3,8 +3,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    "name": "Gantt Progetti Custom",
-    "summary": "Vista Gantt interattiva per i progetti",
+    "name": "Project gantt view",
+    "summary": "Interactive Gantt Chart View for Projects",
     "version": "14.0.0.0.1",
     "development_status": "Alpha",
     "category": "Project",
