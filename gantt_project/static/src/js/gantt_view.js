@@ -5,6 +5,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
     var core = require('web.core');
     var rpc = require('web.rpc');
     var ajax = require('web.ajax');
+    var session = require('web.session');
 
     var GanttView = AbstractAction.extend({
         template: 'CustomGantt.MainView',
@@ -45,22 +46,30 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             var self = this;
 
             return this._super.apply(this, arguments).then(function () {
-                ajax.loadJS("https://export.dhtmlx.com/gantt/api.js").then(function() {
-                    console.log("DHTMLX Export API caricata con successo.");
-                });
 
-                $.when(self._loadProjects(), self._loadUsers(), self._loadStages()).then(function() {
-                    if (self.is_single_project_mode) {
-                        self.$el.find('#project_filter_container').hide();
-                    }
+                // 1. Controlliamo se l'utente ha il gruppo "Amministratore Progetti"
+                session.user_has_group('project.group_project_manager').then(function (isManager) {
 
-                    self._initDHTMLXGantt();
-                    self._loadAndRenderGantt();
+                    // Salviamo il permesso in una variabile del nostro modulo
+                    self.is_gantt_manager = isManager;
 
-                    $(window).on('resize.dhtmlx_gantt', function () {
-                        if (self.gantt_initialized) {
-                            gantt.setSizes();
+                    ajax.loadJS("https://export.dhtmlx.com/gantt/api.js").then(function() {
+                        console.log("DHTMLX Export API caricata con successo.");
+                    });
+
+                    $.when(self._loadProjects(), self._loadUsers(), self._loadStages()).then(function() {
+                        if (self.is_single_project_mode) {
+                            self.$el.find('#project_filter_container').hide();
                         }
+
+                        self._initDHTMLXGantt();
+                        self._loadAndRenderGantt();
+
+                        $(window).on('resize.dhtmlx_gantt', function () {
+                            if (self.gantt_initialized) {
+                                gantt.setSizes();
+                            }
+                        });
                     });
                 });
             });
@@ -186,6 +195,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             var self = this;
 
             gantt.i18n.setLocale("it");
+
+            // --- IMPOSTAZIONE PERMESSI ---
+            // Se non è un manager, il Gantt diventa di sola lettura
+            gantt.config.readonly = !self.is_gantt_manager;
 
             gantt.plugins({
                 tooltip: true,
