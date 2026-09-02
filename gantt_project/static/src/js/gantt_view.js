@@ -35,6 +35,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             this.current_user_id = false;
             this.search_task_query = "";
             this.gantt_initialized = false;
+
+            this.dhtmlx_users = [];
         },
 
         start: function () {
@@ -123,14 +125,20 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 fields: ['id', 'name']
             }).then(function (users) {
                 var $select = self.$el.find('#user_filter');
+                self.dhtmlx_users = [{key: false, label: "Nessuno"}];
+
                 users.forEach(function (u) {
                     $select.append($('<option>', { value: u.id, text: u.name }));
+                    self.dhtmlx_users.push({key: u.id, label: u.name});
                 });
             });
         },
 
         _initDHTMLXGantt: function () {
             var self = this;
+
+            // 1. IMPOSTIAMO LA LINGUA PER PRIMA COSA (per evitare che sovrascriva le label dopo)
+            gantt.i18n.setLocale("it");
 
             gantt.plugins({
                 tooltip: true,
@@ -144,6 +152,128 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.inclusive_end_dates = true;
             gantt.config.duration_unit = "day";
             gantt.config.show_grid = true;
+
+            // --- RIMOZIONE BOTTONE ELIMINA ---
+            gantt.config.buttons_left = ["gantt_save_btn", "gantt_cancel_btn"];
+            gantt.config.buttons_right = [];
+
+            // --- REGISTRAZIONE CONTROLLI CUSTOM (COLORI E DATE) ---
+            gantt.form_blocks["custom_color"] = {
+                render: function (sns) {
+                    var html = "<div class='gantt-custom-colors' style='padding: 5px 10px; display: flex; flex-wrap: wrap; gap: 8px;'>";
+                    sns.options.forEach(function(opt) {
+                        html += "<div class='color-swatch' data-val='" + opt.key + "' title='" + opt.label + "' style='width: 28px; height: 28px; border-radius: 50%; background-color: " + opt.color + "; cursor: pointer; border: 2px solid transparent; transition: 0.1s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);'></div>";
+                    });
+                    html += "</div>";
+                    return html;
+                },
+                set_value: function (node, value, task) {
+                    var swatches = node.querySelectorAll(".color-swatch");
+                    swatches.forEach(function(s) {
+                        s.style.border = "2px solid transparent";
+                        s.style.transform = "scale(1)";
+                        if (s.getAttribute("data-val") == (value || 0)) {
+                            s.style.border = "2px solid #212529";
+                            s.style.transform = "scale(1.1)";
+                        }
+                        s.onclick = function() {
+                            swatches.forEach(function(el) {
+                                el.style.border = "2px solid transparent";
+                                el.style.transform = "scale(1)";
+                            });
+                            this.style.border = "2px solid #212529";
+                            this.style.transform = "scale(1.1)";
+                            node.setAttribute("data-selected", this.getAttribute("data-val"));
+                        };
+                    });
+                    node.setAttribute("data-selected", value || 0);
+                },
+                get_value: function (node, task) {
+                    return node.getAttribute("data-selected");
+                },
+                focus: function (node) {}
+            };
+
+            gantt.form_blocks["custom_dates"] = {
+                render: function (sns) {
+                    return "<div class='gantt-custom-dates' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
+                           "<label style='font-weight: bold; font-size: 13px;'>Data Inizio: <input type='date' class='g-start-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
+                           "<label style='font-weight: bold; font-size: 13px;'>Data Fine: <input type='date' class='g-end-date' style='border: 1px solid #ced4da; padding: 4px 8px; border-radius: 4px; margin-left: 5px;'></label>" +
+                           "</div>";
+                },
+                set_value: function (node, value, task) {
+                    var inpStart = node.querySelector(".g-start-date");
+                    var inpEnd = node.querySelector(".g-end-date");
+                    var format = gantt.date.date_to_str("%Y-%m-%d");
+
+                    inpStart.value = format(task.start_date);
+
+                    var displayEnd = new Date(task.end_date);
+                    if (gantt.config.inclusive_end_dates) {
+                        displayEnd = gantt.date.add(displayEnd, -1, "day");
+                    }
+                    inpEnd.value = format(displayEnd);
+
+                    inpEnd.min = inpStart.value;
+
+                    inpStart.onchange = function() {
+                        inpEnd.min = this.value;
+                        if(inpEnd.value < this.value) inpEnd.value = this.value;
+                    };
+                    inpEnd.onchange = function() {
+                        if(this.value < inpStart.value) inpStart.value = this.value;
+                    };
+                },
+                get_value: function (node, task) {
+                    var parse = gantt.date.str_to_date("%Y-%m-%d");
+                    var start = parse(node.querySelector(".g-start-date").value);
+                    var end = parse(node.querySelector(".g-end-date").value);
+
+                    if (gantt.config.inclusive_end_dates) {
+                        end = gantt.date.add(end, 1, "day");
+                    }
+
+                    return {
+                        start_date: start,
+                        end_date: end,
+                        duration: gantt.calculateDuration(start, end)
+                    };
+                },
+                focus: function (node) { node.querySelector(".g-start-date").focus(); }
+            };
+
+            // --- CONFIGURAZIONE SEZIONI LIGHTBOX E TESTI TRADOTTI ---
+            gantt.locale.labels.section_description = "Nome Task";
+            gantt.locale.labels.section_user = "Assegnatario";
+            gantt.locale.labels.section_color = "Colore";
+            gantt.locale.labels.section_time = "Periodo";
+
+            gantt.serverList("users", self.dhtmlx_users);
+
+            var odooColorsData = [
+                {key: 0, label: "Grigio (Standard)", color: "#a8a8a8"},
+                {key: 1, label: "Rosso", color: "#f06050"},
+                {key: 2, label: "Arancione", color: "#f4a460"},
+                {key: 3, label: "Giallo", color: "#f7cd1f"},
+                {key: 4, label: "Azzurro", color: "#6cc1ed"},
+                {key: 5, label: "Bordeaux", color: "#814968"},
+                {key: 6, label: "Rosa", color: "#eb7e7f"},
+                {key: 7, label: "Ottanio", color: "#2c8397"},
+                {key: 8, label: "Blu Scuro", color: "#475577"},
+                {key: 9, label: "Magenta", color: "#d6145f"},
+                {key: 10, label: "Verde", color: "#30c381"},
+                {key: 11, label: "Viola", color: "#9365b8"}
+            ];
+            gantt.serverList("colors", odooColorsData);
+
+            gantt.config.lightbox.sections = [
+                {name: "description", height: 38, map_to: "text", type: "textarea", focus: true},
+                {name: "user", height: 30, map_to: "user_id", type: "select", options: gantt.serverList("users")},
+                {name: "color", height: 45, map_to: "odoo_color_id", type: "custom_color", options: gantt.serverList("colors")},
+                {name: "time", height: 40, map_to: "auto", type: "custom_dates"}
+            ];
+
+            // ------------------------------------------
 
             gantt.templates.task_class = function(start, end, task) {
                 if (task.type === 'project') return "";
@@ -213,7 +343,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "assignee", label: "Assegnato a", align: "center", width: 110},
                 {name: "stage", label: "Stato", align: "center", width: 100, template: function(obj) {
                     if (obj.type === 'project' || !obj.stage) return "";
-
                     var badgeClass = 'badge-stage-default';
                     var stageLower = obj.stage.toLowerCase();
                     if (stageLower.indexOf('nuov') !== -1 || stageLower.indexOf('bozza') !== -1) {
@@ -223,7 +352,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     } else if (stageLower.indexOf('fatto') !== -1 || stageLower.indexOf('complet') !== -1) {
                         badgeClass = 'badge-stage-done';
                     }
-
                     return "<span class='badge " + badgeClass + "'>" + obj.stage + "</span>";
                 }},
                 {name: "duration", label: "Durata", align: "center", width: 70, template: function(obj) {
@@ -239,7 +367,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.date_format = "%Y-%m-%d %H:%i:%s";
             gantt.config.readonly_property = "readonly";
             gantt.config.open_tree_initially = true;
-            gantt.i18n.setLocale("it");
 
             gantt.ext.zoom.init({
                 levels: [
@@ -250,30 +377,44 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             });
             gantt.ext.zoom.setLevel("day");
 
-            // --- NUOVO CONTROLLO SULLE DATE ---
             gantt.attachEvent("onBeforeTaskUpdate", function(id, task) {
                 if (task.type === 'project') return true;
-
-                // Controlla se la data di fine è precedente o uguale a quella di inizio
                 if (task.start_date >= task.end_date) {
                     self.displayNotification({
                         title: "Errore Date",
                         message: "La data di inizio deve essere precedente alla data di fine.",
                         type: "danger"
                     });
-                    return false; // Blocca la modifica e fa tornare la barra dov'era
+                    return false;
                 }
                 return true;
             });
-            // ----------------------------------
+
+            gantt.attachEvent("onLightboxSave", function(id, task, is_new){
+                var selectedColorObj = odooColorsData.find(function(c) { return c.key == task.odoo_color_id; });
+                task.color = selectedColorObj ? selectedColorObj.color : odooColorsData[0].color;
+
+                var userObj = gantt.serverList("users").find(function(u) { return u.key == task.user_id; });
+                task.assignee = userObj ? userObj.label : 'Nessuno';
+
+                return true;
+            });
 
             gantt.attachEvent("onAfterTaskUpdate", function(id, task){
                 if (task.type === 'project') return;
                 var start_utc = moment(task.start_date).utc().format('YYYY-MM-DD HH:mm:ss');
                 var end_utc = moment(task.end_date).utc().format('YYYY-MM-DD 23:59:59');
+
                 rpc.query({
                     model: 'project.task', method: 'write',
-                    args: [[parseInt(id)], { 'date_start': start_utc, 'date_deadline': end_utc, 'progress': task.progress * 100 }]
+                    args: [[parseInt(id)], {
+                        'name': task.text,
+                        'user_id': task.user_id ? parseInt(task.user_id) : false,
+                        'color': task.odoo_color_id ? parseInt(task.odoo_color_id) : 0,
+                        'date_start': start_utc,
+                        'date_deadline': end_utc,
+                        'progress': task.progress * 100
+                    }]
                 });
             });
 
@@ -301,17 +442,11 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
             gantt.attachEvent("onTaskDblClick", function(id, e){
                 var task = gantt.getTask(id);
-                if (task.type !== 'project') {
-                    this.do_action({
-                        type: 'ir.actions.act_window',
-                        res_model: 'project.task',
-                        res_id: parseInt(id),
-                        views: [[false, 'form']],
-                        target: 'new'
-                    });
+                if (task.type === 'project') {
+                    return false;
                 }
-                return false;
-            }.bind(this));
+                return true;
+            });
 
             gantt.init(this.$el.find('#dhtmlx_gantt_container')[0]);
             this.gantt_initialized = true;
@@ -406,6 +541,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     dhtmlxTasks.push({
                         id: t.id, text: t.name, start_date: startLocal, end_date: endLocal, end_date_raw: moment.utc(t.date_deadline).local().toDate(),
                         progress: (t.progress || 0) / 100, parent: projId, user_id: t.user_id ? t.user_id[0] : false,
+                        odoo_color_id: t.color || 0,
                         assignee: t.user_id ? t.user_id[1] : 'Nessuno', stage: t.stage_id ? t.stage_id[1] : '', color: taskColor
                     });
 
