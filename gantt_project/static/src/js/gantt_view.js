@@ -71,10 +71,42 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
         _onExportPDF: function () {
             if (this.gantt_initialized && typeof gantt.exportToPDF !== "undefined") {
+
+                var tasks = gantt.getTaskByTime();
+
+                if (!tasks || tasks.length === 0) {
+                    gantt.exportToPDF({
+                        name: "Pianificazione_Progetti.pdf",
+                        header: "<h1>Pianificazione Progetti Odoo</h1>",
+                        locale: "it"
+                    });
+                    return;
+                }
+
+                var minDate = tasks[0].start_date;
+                var maxDate = tasks[0].end_date;
+
+                tasks.forEach(function(t) {
+                    if (t.start_date < minDate) minDate = t.start_date;
+                    if (t.end_date > maxDate) maxDate = t.end_date;
+                });
+
+                var exportStart = gantt.date.add(minDate, -7, "day");
+                var exportEnd = gantt.date.add(maxDate, 7, "day");
+
+                // CONVERTIAMO LE DATE IN TESTO PER IL SERVER DHTMLX
+                var formatStr = gantt.date.date_to_str(gantt.config.date_format);
+
                 gantt.exportToPDF({
                     name: "Pianificazione_Progetti.pdf",
                     header: "<h1>Pianificazione Progetti Odoo</h1>",
-                    locale: "it"
+                    locale: "it",
+                    start: formatStr(exportStart), // Ora il server capirà i limiti!
+                    end: formatStr(exportEnd),
+                    // Forziamo il foglio in orizzontale per farcelo stare meglio
+                    server: "https://export.dhtmlx.com/gantt",
+                    format: "A4",
+                    orientation: "landscape"
                 });
             }
         },
