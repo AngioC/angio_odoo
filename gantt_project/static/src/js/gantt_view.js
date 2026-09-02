@@ -152,7 +152,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.duration_unit = "day";
             gantt.config.show_grid = true;
 
-            // Abilita lo scorrimento automatico se si trascina un task ai bordi dello schermo
             gantt.config.autoscroll = true;
             gantt.config.autoscroll_speed = 50;
 
@@ -303,7 +302,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "progress", height: 35, map_to: "progress", type: "custom_progress"},
                 {name: "time", height: 40, map_to: "auto", type: "custom_dates"}
             ];
-            // ------------------------------------------
 
             gantt.templates.task_class = function(start, end, task) {
                 if (task.type === 'project') return "";
@@ -373,17 +371,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "assignee", label: "Assegnato a", align: "center", width: 110},
                 {name: "stage", label: "Stato", align: "center", width: 100, template: function(obj) {
                     if (obj.type === 'project' || !obj.stage) return "";
-                    var badgeClass = 'badge-stage-default';
-                    var stageLower = obj.stage.toLowerCase();
-                    if (stageLower.indexOf('nuov') !== -1 || stageLower.indexOf('bozza') !== -1) {
-                        badgeClass = 'badge-stage-new';
-                    } else if (stageLower.indexOf('cors') !== -1 || stageLower.indexOf('svilupp') !== -1) {
-                        badgeClass = 'badge-stage-progress';
-                    } else if (stageLower.indexOf('fatto') !== -1 || stageLower.indexOf('complet') !== -1) {
-                        badgeClass = 'badge-stage-done';
-                    }
-                    return "<span class='badge " + badgeClass + "'>" + obj.stage + "</span>";
+                    return "<span class='badge badge-secondary' style='font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 10px; background-color: #6c757d; color: #fff; line-height: 1;'>" + obj.stage + "</span>";
                 }},
+                // ------------------------------------------------------------
                 {name: "duration", label: "Durata", align: "center", width: 70, template: function(obj) {
                     if (obj.type === 'project') return "";
                     return obj.duration + " gg";
@@ -547,7 +537,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 var dhtmlxLinks = [];
                 var projectsAdded = [];
 
-                // Variabili per calcolare il range dinamico della timeline
                 var minDate = moment();
                 var maxDate = moment();
 
@@ -563,7 +552,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     var startLocal = moment.utc(t.date_start).local();
                     var endLocal = moment.utc(t.date_deadline).local();
 
-                    // Ricalcoliamo il Min e il Max per allargare la timeline
                     if (startLocal.isBefore(minDate)) minDate = startLocal;
                     if (endLocal.isAfter(maxDate)) maxDate = endLocal;
 
@@ -592,7 +580,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     }
                 });
 
-                // IMPOSTAZIONE TIMELINE "INFINITA": 3 mesi prima del task più vecchio, 1 anno dopo il più nuovo
                 gantt.config.start_date = minDate.clone().subtract(3, 'months').toDate();
                 gantt.config.end_date = maxDate.clone().add(12, 'months').toDate();
 
