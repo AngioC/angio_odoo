@@ -19,7 +19,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                 <page string="Impostazioni Gantt">
                     <group>
                         <field name="progress"/>
-                        <field name="dependency_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="dependency_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('project_id', '=', project_id), ('id', '!=', id)]"/>
                     </group>
                 </page>
             </xpath>
