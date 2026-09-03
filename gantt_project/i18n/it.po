@@ -420,3 +420,9 @@ msgstr "Senza Progetto"
 #: code:addons/gantt_project/static/src/js/gantt_view.js:0
 msgid "N/A"
 msgstr "N/D"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "d"
+msgstr "g"

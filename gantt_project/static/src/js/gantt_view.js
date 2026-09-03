@@ -538,7 +538,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 }},
                 {name: "duration", label: _t("Duration"), align: "center", width: 70, template: function(obj) {
                     if (obj.type === 'project') return "";
-                    return obj.duration + " d";
+                    return obj.duration + " " + _t("d");
                 }},
                 {name: "start_date", label: _t("Start"), align: "center", width: 85, template: function(obj) {
                     return moment(obj.start_date).format('DD/MM/YY');
