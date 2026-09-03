@@ -1,0 +1,422 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* gantt_project
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-03 06:18+0000\n"
+"PO-Revision-Date: 2026-09-03 06:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: gantt_project
+#: model_terms:ir.ui.view,arch_db:gantt_project.view_project_project_form_inherit_gantt
+msgid ""
+"<span class=\"o_stat_text\">Gantt</span>\n"
+"                        <span class=\"o_stat_text\">View</span>"
+msgstr ""
+"<span class=\"o_stat_text\">Vista</span>\n"
+"                        <span class=\"o_stat_text\">Gantt</span>"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "All Projects"
+msgstr "Tutti i Progetti"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "All Users"
+msgstr "Tutti gli Utenti"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Assigned to:"
+msgstr "Assegnato a:"
+
+#. module: gantt_project
+#: model_terms:ir.ui.view,arch_db:gantt_project.view_task_form2_inherit_gantt
+msgid "Color"
+msgstr "Colore"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Day"
+msgstr "Giorno"
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Export to PDF"
+msgstr "Esporta in PDF"
+
+#. module: gantt_project
+#: model:ir.ui.menu,name:gantt_project.menu_project_gantt_custom
+msgid "Gantt"
+msgstr "Gantt"
+
+#. module: gantt_project
+#: model:ir.actions.client,name:gantt_project.action_project_single_gantt
+msgid "Gantt chart"
+msgstr "Grafico Gantt"
+
+#. module: gantt_project
+#: model_terms:ir.ui.view,arch_db:gantt_project.view_task_form2_inherit_gantt
+msgid "Gantt settings"
+msgstr "Impostazioni Gantt"
+
+#. module: gantt_project
+#: model:ir.actions.client,name:gantt_project.action_project_gantt_custom
+msgid "Gantt view"
+msgstr "Vista Gantt"
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task__id
+msgid "ID"
+msgstr "ID"
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task____last_update
+msgid "Last Modified on"
+msgstr "Ultima modifica il"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Month"
+msgstr "Mese"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "PDF"
+msgstr "PDF"
+
+#. module: gantt_project
+#: code:addons/gantt_project/models/project_task.py:0
+#, python-format
+msgid ""
+"Planning error in task '%s':The start date cannot be later than the end "
+"date."
+msgstr ""
+"Errore di pianificazione nel task '%s': la data di inizio non può essere successiva alla data di fine."
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task__progress
+msgid "Progress (%)"
+msgstr "Avanzamento (%)"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Project:"
+msgstr "Progetto:"
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task__dependency_ids
+msgid "Related task"
+msgstr "Task correlati"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Reload Data"
+msgstr "Ricarica Dati"
+
+#. module: gantt_project
+#: model:ir.model.fields,field_description:gantt_project.field_project_task__date_start
+msgid "Start date"
+msgstr "Data inizio"
+
+#. module: gantt_project
+#: model:ir.model,name:gantt_project.model_project_task
+msgid "Task"
+msgstr "Lavoro"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Today"
+msgstr "Oggi"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Toggle Sidebar"
+msgstr "Mostra/Nascondi Tabella"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "View:"
+msgstr "Vista:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Week"
+msgstr "Settimana"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Zoom In"
+msgstr "Ingrandisci"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "Zoom Out"
+msgstr "Riduci"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/xml/gantt_template.xml:0
+#, python-format
+msgid "🔍 Search Tasks..."
+msgstr "🔍 Cerca Task..."
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Odoo Project Planning"
+msgstr "Pianificazione Progetti Odoo"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Unassigned"
+msgstr "Nessuno"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Start Date:"
+msgstr "Data Inizio:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "End Date:"
+msgstr "Data Fine:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Task Name"
+msgstr "Nome Task"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Stage"
+msgstr "Stato"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Assignee"
+msgstr "Assegnatario"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Odoo Color"
+msgstr "Colore Odoo"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Progress"
+msgstr "Avanzamento"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Time Period"
+msgstr "Periodo"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Gray (Standard)"
+msgstr "Grigio (Standard)"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Red"
+msgstr "Rosso"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Orange"
+msgstr "Arancione"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Yellow"
+msgstr "Giallo"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Light Blue"
+msgstr "Azzurro"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Burgundy"
+msgstr "Bordeaux"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Pink"
+msgstr "Rosa"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Teal"
+msgstr "Ottanio"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Dark Blue"
+msgstr "Blu Scuro"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Magenta"
+msgstr "Magenta"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Green"
+msgstr "Verde"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Purple"
+msgstr "Viola"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Start:"
+msgstr "Inizio:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "End:"
+msgstr "Fine:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Progress:"
+msgstr "Avanzamento:"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "OVERDUE!"
+msgstr "IN RITARDO!"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Project / Task"
+msgstr "Progetto / Task"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Duration"
+msgstr "Durata"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Start"
+msgstr "Inizio"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Week %W"
+msgstr "Sett. %W"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Date Error"
+msgstr "Errore Date"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "The start date must be before the end date."
+msgstr "La data di inizio deve essere precedente alla data di fine."
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Invalid Link"
+msgstr "Collegamento non valido"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "You cannot link tasks belonging to different projects."
+msgstr "Non puoi collegare task appartenenti a progetti diversi."
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "No Project"
+msgstr "Senza Progetto"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "N/A"
+msgstr "N/D"
