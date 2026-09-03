@@ -269,7 +269,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
             gantt.plugins({
                 tooltip: true,
-                drag_timeline: true
+                drag_timeline: true,
+                marker: true
             });
 
             gantt.config.drag_timeline = {
@@ -476,12 +477,22 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return isOverdue ? "gantt_task_overdue" : "";
             };
 
-            // Grey out weekend columns
+            // Weekend and today columns
             gantt.templates.timeline_cell_class = function (task, date) {
+                var classes = [];
+
                 if (date.getDay() === 0 || date.getDay() === 6) {
-                    return "weekend";
+                    classes.push("weekend");
                 }
-                return "";
+
+                var today = new Date();
+                if (date.getDate() === today.getDate() &&
+                    date.getMonth() === today.getMonth() &&
+                    date.getFullYear() === today.getFullYear()) {
+                    classes.push("gantt-today-line");
+                }
+
+                return classes.join(" ");
             };
 
             // Custom Tooltip rendering
