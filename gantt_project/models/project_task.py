@@ -8,7 +8,7 @@ from odoo.exceptions import ValidationError
 class ProjectTask(models.Model):
     _inherit = 'project.task'
 
-    date_start = fields.Datetime(string='Start date')
+    date_start = fields.Date(string='Start date')
     progress = fields.Integer(string='Progress (%)', default=0)
 
     dependency_ids = fields.Many2many(
