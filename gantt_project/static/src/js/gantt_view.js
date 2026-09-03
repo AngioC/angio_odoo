@@ -506,8 +506,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                        "<div style='font-size: 13px;'>" +
                        "<b>" + _t("Start:") + "</b> " + start_str + "<br/>" +
                        "<b>" + _t("End:") + "</b> " + end_str + "<br/>" +
-                       "<b>" + _t("Assignee:") + "</b> " + task.assignee + "<br/>" +
-                       "<b>" + _t("Stage:") + "</b> " + (task.stage || _t("N/A")) + "<br/>" +
+                       "<b>" + _t("Assignee") + ":</b> " + task.assignee + "<br/>" +
+                       "<b>" + _t("Stage") + ":</b> " + (task.stage || _t("N/A")) + "<br/>" +
                        "<b>" + _t("Progress:") + "</b> " + progress + "%" +
                        overdueWarning +
                        "</div></div>";
