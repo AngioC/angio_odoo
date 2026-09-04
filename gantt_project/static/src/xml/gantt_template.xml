@@ -64,7 +64,7 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                         </select>
                     </div>
 
-                    <!-- Bottone Reset Filtri -->
+                    <!-- Reset Filters -->
                     <button type="button" class="btn btn-sm btn-secondary gantt-reset-filters-btn" title="Reset">
                         <i class="fa fa-times"/>
                     </button>
