@@ -4,7 +4,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
     var AbstractAction = require('web.AbstractAction');
     var core = require('web.core');
     var rpc = require('web.rpc');
-    var ajax = require('web.ajax');
     var session = require('web.session');
 
     // Import Odoo translation core function
@@ -36,7 +35,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         init: function (parent, action) {
             this._super.apply(this, arguments);
 
-            // Determine if the view was opened from a specific project context
             var ctx = (action && action.context) || (action && action.params && action.params.context) || this.actionContext || {};
             var contextProjectId = ctx.active_id || ctx.default_project_id || ctx.res_id || false;
 
@@ -47,28 +45,21 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             this.search_task_query = "";
             this.gantt_initialized = false;
 
-            // Arrays to store Odoo data for DHTMLX Lightbox
             this.dhtmlx_users = [];
             this.dhtmlx_stages = [];
             this.all_stages_data = [];
+
+            this.save_timers = {};
         },
 
         start: function () {
             var self = this;
 
             return this._super.apply(this, arguments).then(function () {
-                // Check if the current user has Project Manager rights
                 session.user_has_group('project.group_project_manager').then(function (isManager) {
                     self.is_gantt_manager = isManager;
 
-                    // Load DHTMLX export plugin script
-                    ajax.loadJS("https://export.dhtmlx.com/gantt/api.js").then(function() {
-                        console.log("DHTMLX Export API loaded successfully.");
-                    });
-
-                    // Fetch required data before initializing the Gantt chart
                     $.when(self._loadProjects(), self._loadUsers(), self._loadStages()).then(function() {
-                        // Hide project selector if viewing a single project
                         if (self.is_single_project_mode) {
                             self.$el.find('#project_filter_container').hide();
                         }
@@ -76,7 +67,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                         self._initDHTMLXGantt();
                         self._loadAndRenderGantt();
 
-                        // Handle window resize events for responsiveness
                         $(window).on('resize.dhtmlx_gantt', function () {
                             if (self.gantt_initialized) {
                                 gantt.setSizes();
@@ -99,7 +89,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             if (this.gantt_initialized && typeof gantt.exportToPDF !== "undefined") {
                 var tasks = gantt.getTaskByTime();
 
-                // Export default view if no tasks exist
                 if (!tasks || tasks.length === 0) {
                     gantt.exportToPDF({
                         name: "Project_Planning.pdf",
@@ -109,7 +98,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     return;
                 }
 
-                // Calculate the visible date range to optimize PDF rendering
                 var minDate = tasks[0].start_date;
                 var maxDate = tasks[0].end_date;
 
@@ -118,7 +106,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     if (t.end_date > maxDate) maxDate = t.end_date;
                 });
 
-                // Add a 7-day padding margin to the exported file
                 var exportStart = gantt.date.add(minDate, -7, "day");
                 var exportEnd = gantt.date.add(maxDate, 7, "day");
                 var formatStr = gantt.date.date_to_str(gantt.config.date_format);
@@ -259,18 +246,16 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         _initDHTMLXGantt: function () {
             var self = this;
 
-            // Dynamically set Gantt language based on Odoo user preference
             var userLang = session.user_context.lang || "en_US";
             var dhtmlxLang = userLang.split('_')[0];
             gantt.i18n.setLocale(dhtmlxLang);
 
-            // Enforce read-only mode if the user lacks manager permissions
             gantt.config.readonly = !self.is_gantt_manager;
 
             gantt.plugins({
                 tooltip: true,
                 drag_timeline: true,
-                marker: true
+                export_api: true
             });
 
             gantt.config.drag_timeline = {
@@ -283,13 +268,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.autoscroll = true;
             gantt.config.autoscroll_speed = 50;
 
-            // Remove native Lightbox delete button
             gantt.config.buttons_left = ["gantt_save_btn", "gantt_cancel_btn"];
             gantt.config.buttons_right = [];
 
             // --- CUSTOM LIGHTBOX CONTROLS ---
-
-            // Custom Color Picker
             gantt.form_blocks["custom_color"] = {
                 render: function (sns) {
                     var html = "<div class='gantt-custom-colors' style='padding: 5px 10px; display: flex; flex-wrap: wrap; gap: 8px;'>";
@@ -326,7 +308,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 focus: function (node) {}
             };
 
-            // Custom Date Inputs
             gantt.form_blocks["custom_dates"] = {
                 render: function (sns) {
                     return "<div class='gantt-custom-dates' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
@@ -337,44 +318,42 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 set_value: function (node, value, task) {
                     var inpStart = node.querySelector(".g-start-date");
                     var inpEnd = node.querySelector(".g-end-date");
-                    var format = gantt.date.date_to_str("%Y-%m-%d");
 
-                    inpStart.value = format(task.start_date);
-
-                    var displayEnd = new Date(task.end_date);
-                    if (gantt.config.inclusive_end_dates) {
-                        displayEnd = gantt.date.add(displayEnd, -1, "day");
+                    // Riempiamo i campi solo se il task ha date ed è attivo
+                    if (task.start_date && !task.unscheduled) {
+                        inpStart.value = moment(task.start_date).format("YYYY-MM-DD");
+                    } else {
+                        inpStart.value = "";
                     }
-                    inpEnd.value = format(displayEnd);
-                    inpEnd.min = inpStart.value;
+
+                    if (task.end_date && !task.unscheduled) {
+                        inpEnd.value = moment(task.end_date).subtract(1, "days").format("YYYY-MM-DD");
+                        inpEnd.min = inpStart.value;
+                    } else {
+                        inpEnd.value = "";
+                        inpEnd.min = "";
+                    }
 
                     inpStart.onchange = function() {
                         inpEnd.min = this.value;
-                        if(inpEnd.value < this.value) inpEnd.value = this.value;
+                        if(inpEnd.value && inpEnd.value < this.value) inpEnd.value = this.value;
                     };
                     inpEnd.onchange = function() {
-                        if(this.value < inpStart.value) inpStart.value = this.value;
+                        if(this.value && inpStart.value && this.value < inpStart.value) inpStart.value = this.value;
                     };
                 },
                 get_value: function (node, task) {
-                    var parse = gantt.date.str_to_date("%Y-%m-%d");
-                    var start = parse(node.querySelector(".g-start-date").value);
-                    var end = parse(node.querySelector(".g-end-date").value);
-
-                    if (gantt.config.inclusive_end_dates) {
-                        end = gantt.date.add(end, 1, "day");
-                    }
-
+                    // Questa funzione restituisce solo l'oggetto puro letto dagli input,
+                    // passandolo alla variabile mappa (task_dates).
+                    // Ci assicureremo noi di processarlo su onLightboxSave!
                     return {
-                        start_date: start,
-                        end_date: end,
-                        duration: gantt.calculateDuration(start, end)
+                        start_raw: node.querySelector(".g-start-date").value,
+                        end_raw: node.querySelector(".g-end-date").value
                     };
                 },
                 focus: function (node) { node.querySelector(".g-start-date").focus(); }
             };
 
-            // Custom Progress Slider
             gantt.form_blocks["custom_progress"] = {
                 render: function (sns) {
                     return "<div class='gantt-custom-progress' style='padding: 5px 10px; display: flex; align-items: center; gap: 15px;'>" +
@@ -431,10 +410,11 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 {name: "user", height: 30, map_to: "user_id", type: "select", options: gantt.serverList("users")},
                 {name: "color", height: 45, map_to: "odoo_color_id", type: "custom_color", options: gantt.serverList("colors")},
                 {name: "progress", height: 35, map_to: "progress", type: "custom_progress"},
-                {name: "time", height: 40, map_to: "auto", type: "custom_dates"}
+
+                // IL NOME DELLA VARIABILE ORA COINCIDE ALLA PERFEZIONE CON ONLIGHTBOXSAVE
+                {name: "time", height: 40, map_to: "task_dates", type: "custom_dates"}
             ];
 
-            // Filter stages available in the Lightbox based on the selected task's project
             gantt.attachEvent("onBeforeLightbox", function(id) {
                 var task = gantt.getTask(id);
                 var projectId = false;
@@ -454,7 +434,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
                 var stagesToLoad = filteredStages.length > 0 ? filteredStages : self.dhtmlx_stages;
 
-                // Ensure the currently assigned stage remains selectable even if filtering fails
                 var hasCurrentStage = stagesToLoad.find(function(s) { return s.key == task.stage_id; });
                 if (task.stage_id && !hasCurrentStage) {
                     var currentStageData = self.all_stages_data.find(function(s) { return s.id == task.stage_id; });
@@ -468,38 +447,37 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             });
 
             // --- VISUAL FORMATTING ---
-
-            // Highlight overdue tasks
             gantt.templates.task_class = function(start, end, task) {
                 if (task.type === 'project') return "";
                 var now = new Date();
-                var isOverdue = task.end_date < now && task.progress < 1;
+                var isOverdue = !task.unscheduled && task.end_date < now && task.progress < 1;
                 return isOverdue ? "gantt_task_overdue" : "";
             };
 
-            // Weekend and today columns
             gantt.templates.timeline_cell_class = function (task, date) {
                 var classes = [];
-
                 if (date.getDay() === 0 || date.getDay() === 6) {
                     classes.push("weekend");
                 }
-
                 var today = new Date();
                 if (date.getDate() === today.getDate() &&
                     date.getMonth() === today.getMonth() &&
                     date.getFullYear() === today.getFullYear()) {
                     classes.push("gantt-today-line");
                 }
-
                 return classes.join(" ");
             };
 
-            // Custom Tooltip rendering
             gantt.templates.tooltip_text = function(start, end, task) {
+                if (task.unscheduled) {
+                    return "<div style='padding: 5px; font-family: sans-serif;'>" +
+                           "<h5 style='margin: 0 0 5px 0; color: #017e84; font-weight: bold;'>" + task.text + "</h5>" +
+                           "<div style='font-size: 13px;'><i>" + _t("Unscheduled") + "</i></div></div>";
+                }
+
                 var start_str = moment(start).format('DD/MM/YYYY');
                 var end_display = moment(end).clone().add(-1, 'days');
-                var end_str = moment(task.end_date_raw || end_display).format('DD/MM/YYYY');
+                var end_str = moment(end_display).format('DD/MM/YYYY');
 
                 if (task.type === 'project') {
                     return "<div style='padding: 5px; font-family: sans-serif;'>" +
@@ -524,11 +502,10 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                        "</div></div>";
             };
 
-            // Define left-side grid columns
             gantt.config.columns = [
                 {name: "text", label: _t("Project / Task"), tree: true, width: 220, template: function(obj) {
                     if (obj.type === 'project') return obj.text;
-                    var isOverdue = obj.end_date < new Date() && obj.progress < 1;
+                    var isOverdue = !obj.unscheduled && obj.end_date < new Date() && obj.progress < 1;
                     return isOverdue ? "⚠️ " + obj.text : obj.text;
                 }},
                 {name: "assignee", label: _t("Assignee"), align: "center", width: 110},
@@ -537,10 +514,11 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     return "<span class='badge badge-secondary' style='font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 10px; background-color: #6c757d; color: #fff; line-height: 1;'>" + obj.stage + "</span>";
                 }},
                 {name: "duration", label: _t("Duration"), align: "center", width: 70, template: function(obj) {
-                    if (obj.type === 'project') return "";
+                    if (obj.type === 'project' || obj.unscheduled) return "";
                     return obj.duration + " " + _t("d");
                 }},
                 {name: "start_date", label: _t("Start"), align: "center", width: 85, template: function(obj) {
+                    if (obj.type === 'project' || obj.unscheduled) return "-";
                     return moment(obj.start_date).format('DD/MM/YY');
                 }}
             ];
@@ -550,7 +528,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.readonly_property = "readonly";
             gantt.config.open_tree_initially = true;
 
-            // Configure semantic zoom levels
             gantt.ext.zoom.init({
                 levels: [
                     { name: "day", scale_height: 50, scales: [{unit: "day", step: 1, format: "%d %M"}] },
@@ -561,8 +538,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.ext.zoom.setLevel("day");
 
             // --- USER INTERACTION EVENTS ---
-
-            // Filter tasks dynamically using custom toolbar inputs
             gantt.attachEvent("onBeforeTaskDisplay", function (id, task) {
                 if (task.type === 'project') return true;
 
@@ -580,9 +555,8 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return true;
             });
 
-            // Prevent invalid task date changes
             gantt.attachEvent("onBeforeTaskUpdate", function(id, task) {
-                if (task.type === 'project') return true;
+                if (task.type === 'project' || task.unscheduled) return true;
                 if (task.start_date >= task.end_date) {
                     self.displayNotification({
                         title: _t("Date Error"),
@@ -594,8 +568,32 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return true;
             });
 
-            // Process Lightbox save payload
             gantt.attachEvent("onLightboxSave", function(id, task, is_new){
+
+                // LE LETTURE FINALMENTE COINCIDONO CON IL MAP_TO "task_dates"
+                if (task.task_dates) {
+                    var startVal = task.task_dates.start_raw;
+                    var endVal = task.task_dates.end_raw;
+
+                    if (!startVal || !endVal) {
+                        // Resettiamo a unscheduled e diamo date fittizie a DHTMLX
+                        task.unscheduled = true;
+                        var fallback = moment().startOf('day');
+                        task.start_date = fallback.toDate();
+                        task.end_date = fallback.add(1, "days").toDate();
+                        task.duration = 1;
+                    } else {
+                        // Applichiamo le date corrette al task
+                        task.unscheduled = false;
+                        var start = moment(startVal, "YYYY-MM-DD").toDate();
+                        var end = moment(endVal, "YYYY-MM-DD").add(1, "days").toDate(); // Offset per inclusione interna DHTMLX
+
+                        task.start_date = start;
+                        task.end_date = end;
+                        task.duration = gantt.calculateDuration(start, end);
+                    }
+                }
+
                 var selectedColorObj = odooColorsData.find(function(c) { return c.key == task.odoo_color_id; });
                 task.color = selectedColorObj ? selectedColorObj.color : odooColorsData[0].color;
 
@@ -608,27 +606,35 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return true;
             });
 
-            // Push updated task parameters to Odoo database
             gantt.attachEvent("onAfterTaskUpdate", function(id, task){
                 if (task.type === 'project') return;
-                var start_utc = moment(task.start_date).utc().format('YYYY-MM-DD HH:mm:ss');
-                var end_utc = moment(task.end_date).utc().format('YYYY-MM-DD 23:59:59');
 
-                rpc.query({
-                    model: 'project.task', method: 'write',
-                    args: [[parseInt(id)], {
-                        'name': task.text,
-                        'user_id': task.user_id ? parseInt(task.user_id) : false,
-                        'stage_id': task.stage_id ? parseInt(task.stage_id) : false,
-                        'color': task.odoo_color_id ? parseInt(task.odoo_color_id) : 0,
-                        'date_start': start_utc,
-                        'date_deadline': end_utc,
-                        'progress': task.progress * 100
-                    }]
-                });
+                // Passiamo le date testuali perfette a Odoo (YYYY-MM-DD)
+                var start_out = (!task.unscheduled && task.start_date) ? moment(task.start_date).format('YYYY-MM-DD') : false;
+                var end_out = (!task.unscheduled && task.end_date) ? moment(task.end_date).subtract(1, 'days').format('YYYY-MM-DD') : false;
+
+                if (self.save_timers[id]) {
+                    clearTimeout(self.save_timers[id]);
+                }
+
+                self.save_timers[id] = setTimeout(function() {
+                    rpc.query({
+                        model: 'project.task', method: 'write',
+                        args: [[parseInt(id)], {
+                            'name': task.text,
+                            'user_id': task.user_id ? parseInt(task.user_id) : false,
+                            'stage_id': task.stage_id ? parseInt(task.stage_id) : false,
+                            'color': task.odoo_color_id ? parseInt(task.odoo_color_id) : 0,
+                            'date_start': start_out,
+                            'date_deadline': end_out,
+                            'progress': task.progress * 100
+                        }]
+                    }).then(function() {
+                        delete self.save_timers[id];
+                    });
+                }, 400);
             });
 
-            // Validate Link creation before appending it to UI
             gantt.attachEvent("onBeforeLinkAdd", function(id, link) {
                 var sourceTask = gantt.getTask(link.source);
                 var targetTask = gantt.getTask(link.target);
@@ -649,7 +655,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return true;
             });
 
-            // Append confirmed link constraint into Odoo
             gantt.attachEvent("onAfterLinkAdd", function(id, link){
                 var sourceId = parseInt(link.source);
                 var targetId = parseInt(link.target);
@@ -661,7 +666,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 }
             });
 
-            // Disconnect constraint link from Odoo
             gantt.attachEvent("onAfterLinkDelete", function(id, link){
                 var sourceId = parseInt(link.source);
                 var targetId = parseInt(link.target);
@@ -673,7 +677,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 }
             });
 
-            // Prevent projects from triggering the Lightbox form
             gantt.attachEvent("onTaskDblClick", function(id, e){
                 var task = gantt.getTask(id);
                 if (task.type === 'project') {
@@ -682,7 +685,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 return true;
             });
 
-            // Finalize map rendering injection
             gantt.init(this.$el.find('#dhtmlx_gantt_container')[0]);
             this.gantt_initialized = true;
         },
@@ -692,9 +694,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
         // ==========================================
         _loadAndRenderGantt: function () {
             var self = this;
-            var domain = [['date_start', '!=', false], ['date_deadline', '!=', false]];
 
-            // Restrict fetch payload if viewed from a specific project menu
+            var domain = [];
+
             if (this.current_project_id) {
                 domain.push(['project_id', '=', this.current_project_id]);
             }
@@ -724,34 +726,46 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                 tasks.forEach(function(t) {
                     if (self.current_project_id && t.project_id && t.project_id[0] !== self.current_project_id) return;
 
-                    var startLocal = moment.utc(t.date_start).local();
-                    var endLocal = moment.utc(t.date_deadline).local();
-
-                    if (startLocal.isBefore(minDate)) minDate = startLocal;
-                    if (endLocal.isAfter(maxDate)) maxDate = endLocal;
-
                     var projId = t.project_id ? "proj_" + t.project_id[0] : "proj_0";
                     var projName = t.project_id ? t.project_id[1] : _t("No Project");
 
-                    // Insert root Project nodes
                     if (projectsAdded.indexOf(projId) === -1) {
                         dhtmlxTasks.push({ id: projId, text: projName, type: 'project', readonly: true, open: true, color: "#343a40", textColor: "#ffffff" });
                         projectsAdded.push(projId);
                     }
 
-                    // Append child Task nodes with metadata
                     var taskColor = odooColors[t.color || 0] || odooColors[0];
-                    dhtmlxTasks.push({
-                        id: t.id, text: t.name, start_date: startLocal.format("YYYY-MM-DD 00:00:00"),
-                        end_date: endLocal.format("YYYY-MM-DD 23:59:59"),
-                        end_date_raw: endLocal.toDate(),
-                        progress: (t.progress || 0) / 100, parent: projId, user_id: t.user_id ? t.user_id[0] : false,
+
+                    var taskObj = {
+                        id: t.id, text: t.name, progress: (t.progress || 0) / 100,
+                        parent: projId, user_id: t.user_id ? t.user_id[0] : false,
                         stage_id: t.stage_id ? t.stage_id[0] : false,
                         odoo_color_id: t.color || 0,
                         assignee: t.user_id ? t.user_id[1] : _t("Unassigned"), stage: t.stage_id ? t.stage_id[1] : '', color: taskColor
-                    });
+                    };
 
-                    // Build relationship connectors array
+                    if (t.date_start && t.date_deadline) {
+                        var startStr = t.date_start.split(' ')[0];
+                        var endStr = t.date_deadline.split(' ')[0];
+
+                        var startLocal = moment(startStr, "YYYY-MM-DD");
+                        var endLocal = moment(endStr, "YYYY-MM-DD").add(1, 'days');
+
+                        if (startLocal.isBefore(minDate)) minDate = startLocal.clone();
+                        if (endLocal.isAfter(maxDate)) maxDate = endLocal.clone();
+
+                        taskObj.start_date = startLocal.toDate();
+                        taskObj.end_date = endLocal.toDate();
+                        taskObj.unscheduled = false;
+                    } else {
+                        taskObj.unscheduled = true;
+                        var fallbackDate = moment().startOf('day');
+                        taskObj.start_date = fallbackDate.toDate();
+                        taskObj.end_date = fallbackDate.clone().add(1, 'days').toDate();
+                    }
+
+                    dhtmlxTasks.push(taskObj);
+
                     if (t.dependency_ids && t.dependency_ids.length > 0) {
                         t.dependency_ids.forEach(function(depId) {
                             dhtmlxLinks.push({ id: "link_" + depId + "_" + t.id, source: depId, target: t.id, type: "0" });
@@ -759,7 +773,6 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
                     }
                 });
 
-                // Establish timeline rendering boundary constraints (infinite scroll logic)
                 gantt.config.start_date = minDate.clone().subtract(3, 'months').toDate();
                 gantt.config.end_date = maxDate.clone().add(12, 'months').toDate();
 
