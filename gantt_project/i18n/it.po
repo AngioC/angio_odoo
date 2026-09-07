@@ -426,3 +426,9 @@ msgstr "N/D"
 #: code:addons/gantt_project/static/src/js/gantt_view.js:0
 msgid "d"
 msgstr "g"
+
+#. module: gantt_project
+#. openerp-web
+#: code:addons/gantt_project/static/src/js/gantt_view.js:0
+msgid "Open Task Form"
+msgstr "Apri Scheda Task"
