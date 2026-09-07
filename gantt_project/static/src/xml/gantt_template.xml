@@ -7,7 +7,6 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
     <t t-name="CustomGantt.MainView">
         <div class="o_custom_gantt_wrapper" style="height: 100%; display: flex; flex-direction: column; background: white; overflow: hidden;">
 
-            <!-- STYLES FOR WEEKENDS, BADGES, AND OVERDUE ALERTS -->
             <style>
                 .gantt_task_cell.weekend {
                     background-color: #f4f5f7 !important;
@@ -28,6 +27,11 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                     border: 1px solid #b21f2d !important;
                 }
 
+                .gantt_task_line.gantt_task_completed {
+                    opacity: 0.4 !important;
+                    filter: grayscale(60%);
+                }
+
                 .gantt_task_cell.weekend {
                     background-color: #f4f5f7 !important;
                 }
@@ -38,10 +42,8 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                 }
             </style>
 
-            <!-- UNIFIED TOOLBAR: Quick Actions & Filters (Left), Tools (Right) -->
             <div class="gantt-toolbar d-flex align-items-center justify-content-between" style="padding: 10px 20px; border-bottom: 1px solid #e0e0e0; background: #f8f9fa; flex-shrink: 0;">
 
-                <!-- LEFT SIDE: MENU TOGGLE + FILTERS -->
                 <div class="d-flex align-items-center" style="gap: 15px;">
 
                     <button type="button" class="btn btn-sm btn-light border gantt-toggle-sidebar-btn" title="Toggle Sidebar" style="width: 32px; padding: 4px 0;">
@@ -64,43 +66,35 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
                         </select>
                     </div>
 
-                    <!-- Reset Filters -->
                     <button type="button" class="btn btn-sm btn-secondary gantt-reset-filters-btn" title="Reset">
                         <i class="fa fa-times"/>
                     </button>
 
                 </div>
 
-                <!-- RIGHT SIDE: ACTIONS & ZOOM -->
                 <div class="d-flex align-items-center" style="gap: 15px;">
                     <div class="d-flex align-items-center" style="gap: 8px;">
-                        <!-- REFRESH BUTTON -->
                         <button type="button" class="btn btn-sm btn-light border gantt-refresh-btn" title="Reload Data">
                             <i class="fa fa-refresh text-dark"/>
                         </button>
 
-                        <!-- PDF EXPORT BUTTON -->
                         <button type="button" class="btn btn-sm btn-outline-danger gantt-export-pdf-btn" title="Export to PDF">
                             <i class="fa fa-file-pdf-o"/> PDF
                         </button>
 
-                        <!-- TODAY BUTTON -->
                         <button type="button" class="btn btn-sm btn-primary gantt-today-btn" style="font-weight: 500;">Today</button>
                     </div>
 
                     <div class="d-flex align-items-center" style="gap: 8px;">
                         <span style="font-size: 12px; font-weight: 600; color: #6c757d;">View:</span>
                         <div class="btn-group btn-group-sm" role="group">
-                            <!-- ZOOM OUT BUTTON (-) -->
                             <button type="button" class="btn btn-secondary gantt-zoom-out-btn" title="Zoom Out">
                                 <i class="fa fa-search-minus"/>
                             </button>
-                            <!-- ZOOM IN BUTTON (+) -->
                             <button type="button" class="btn btn-secondary gantt-zoom-in-btn" title="Zoom In">
                                 <i class="fa fa-search-plus"/>
                             </button>
 
-                            <!-- VIEW MODES -->
                             <button type="button" class="btn btn-primary gantt-zoom-btn active" data-mode="day">Day</button>
                             <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="week">Week</button>
                             <button type="button" class="btn btn-secondary gantt-zoom-btn" data-mode="month">Month</button>
@@ -110,7 +104,6 @@ License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
 
             </div>
 
-            <!-- DHTMLX CONTAINER -->
             <div id="dhtmlx_gantt_container" style="flex-grow: 1; width: 100%; min-height: 0;"/>
 
         </div>

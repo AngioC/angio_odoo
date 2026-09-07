@@ -462,6 +462,7 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
 
             gantt.templates.task_class = function(start, end, task) {
                 if (task.type === 'project') return "";
+                if (task.progress >= 1) return "gantt_task_completed";
                 var now = new Date();
                 var isOverdue = !task.unscheduled && task.end_date < now && task.progress < 1;
                 return isOverdue ? "gantt_task_overdue" : "";
@@ -518,6 +519,9 @@ odoo.define('custom_gantt_project.GanttView', function (require) {
             gantt.config.columns = [
                 {name: "text", label: _t("Project / Task"), tree: true, width: 220, template: function(obj) {
                     if (obj.type === 'project') return obj.text;
+                    if (obj.progress >= 1) {
+                        return "✔️ <span style='color: #888; text-decoration: line-through;'>" + obj.text + "</span>";
+                    }
                     var isOverdue = !obj.unscheduled && obj.end_date < new Date() && obj.progress < 1;
                     return isOverdue ? "⚠️ " + obj.text : obj.text;
                 }},
