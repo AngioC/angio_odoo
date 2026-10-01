@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  -*- coding: utf-8 -*-
+© 2026 AngioC
+License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html). -->
+
+<odoo>
+    <record id="view_admin_access_request_form" model="ir.ui.view">
+        <field name="name">admin.access.request.form</field>
+        <field name="model">admin.access.request</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_submit" string="Send request" type="object" class="oe_highlight" states="draft"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" states="submitted" groups="base.group_erp_manager"/>
+                    <button name="action_reject" string="Reject" type="object" states="submitted" groups="base.group_erp_manager"/>
+                    <button name="action_revoke" string="Revoke access (Disable)" type="object" class="btn-danger" states="approved" groups="base.group_erp_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,revoked"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="requester_id"/>
+                            <field name="granted_user_id" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" placeholder="Explain why you need administrative access..."/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_admin_access_request" model="ir.actions.act_window">
+        <field name="name">Admin access requests</field>
+        <field name="res_model">admin.access.request</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_admin_access_root"
+              name="Admin request"
+              sequence="100"/>
+
+    <menuitem id="menu_admin_access_request_sub"
+              name="My requests"
+              parent="menu_admin_access_root"
+              action="action_admin_access_request"
+              sequence="10"/>
+</odoo>

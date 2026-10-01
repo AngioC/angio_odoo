@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_request_user,Access Request User,model_admin_access_request,base.group_user,1,1,1,0
+access_request_admin,Access Request Admin,model_admin_access_request,base.group_erp_manager,1,1,1,1

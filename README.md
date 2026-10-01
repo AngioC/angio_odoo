@@ -6,6 +6,7 @@ Available addons
 ----------------
 addon | version    | summary
 --- |------------| ---
+[admin_access_request](https://github.com/AngioC/angio_odoo/tree/14.0/admin_access_request) | 14.0.0.0.1 | Request access to an admin account with approval workflow and temporary credentials.
 [gantt_project](https://github.com/AngioC/angio_odoo/tree/14.0/gantt_project) | 14.0.0.0.1 | Integrates the DHTMLX Gantt library providing an interactive project scheduling interface.
 [generate_data_xml](https://github.com/AngioC/angio_odoo/tree/14.0/generate_data_xml) | 14.0.0.0.1 | Simple odoo tool that generate XML data file starting from a CSV or a XLSX file.
 [password_toggle](https://github.com/AngioC/angio_odoo/tree/14.0/password_toggle) | 14.0.0.0.1 | Simple odoo tool that add a button near a field that show/hide password.
